@@ -15,8 +15,9 @@ public class EfEntityRepositoryBase<TEntity, TContext> : IEntityRepository<TEnti
 
     protected TContext Context { get; }
 
+    /// <summary>Tek kayıt izlenerek okunur; çağıran onu değiştirip <see cref="Update"/> ile kaydedebilir.</summary>
     public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default)
-        => Context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(filter, cancellationToken);
+        => Context.Set<TEntity>().FirstOrDefaultAsync(filter, cancellationToken);
 
     public Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>>? filter = null, CancellationToken cancellationToken = default)
     {

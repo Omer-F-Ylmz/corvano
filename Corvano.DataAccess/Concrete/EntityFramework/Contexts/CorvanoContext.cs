@@ -9,10 +9,28 @@ public class CorvanoContext : DbContext
     {
     }
 
+    public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Category>(e =>
+        {
+            e.ToTable("category");
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Id).HasColumnName("id");
+            e.Property(c => c.Name).HasColumnName("name").HasMaxLength(120).IsRequired();
+            e.Property(c => c.Slug).HasColumnName("slug").HasMaxLength(140).IsRequired();
+            e.Property(c => c.ParentId).HasColumnName("parent_id");
+            e.Property(c => c.SortOrder).HasColumnName("sort_order");
+            e.Property(c => c.IsActive).HasColumnName("is_active");
+            e.HasIndex(c => c.Slug).IsUnique().HasDatabaseName("ux_category_slug");
+            e.HasOne<Category>().WithMany().HasForeignKey(c => c.ParentId).OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Product>(e =>
         {
             e.ToTable("product");
@@ -20,10 +38,53 @@ public class CorvanoContext : DbContext
             e.Property(p => p.Id).HasColumnName("id");
             e.Property(p => p.Name).HasColumnName("name").HasMaxLength(200).IsRequired();
             e.Property(p => p.Slug).HasColumnName("slug").HasMaxLength(200).IsRequired();
+            e.Property(p => p.Description).HasColumnName("description").HasColumnType("nvarchar(max)").IsRequired();
+            e.Property(p => p.CategoryId).HasColumnName("category_id");
             e.Property(p => p.Price).HasColumnName("price").HasPrecision(18, 2);
             e.Property(p => p.IsActive).HasColumnName("is_active");
             e.Property(p => p.CreatedAt).HasColumnName("created_at");
+            e.Property(p => p.UpdatedAt).HasColumnName("updated_at");
             e.HasIndex(p => p.Slug).IsUnique().HasDatabaseName("ux_product_slug");
+            e.HasOne<Category>().WithMany().HasForeignKey(p => p.CategoryId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ProductVariant>(e =>
+        {
+            e.ToTable("product_variant", t => t.HasCheckConstraint("ck_product_variant_stock", "[stock] >= 0"));
+            e.HasKey(v => v.Id);
+            e.Property(v => v.Id).HasColumnName("id");
+            e.Property(v => v.ProductId).HasColumnName("product_id");
+            e.Property(v => v.Size).HasColumnName("size").HasMaxLength(8).IsRequired();
+            e.Property(v => v.Color).HasColumnName("color").HasMaxLength(60).IsRequired();
+            e.Property(v => v.Sku).HasColumnName("sku").HasMaxLength(60).IsRequired();
+            e.Property(v => v.Stock).HasColumnName("stock");
+            e.Property(v => v.PriceOverride).HasColumnName("price_override").HasPrecision(18, 2);
+            e.HasIndex(v => v.Sku).IsUnique().HasDatabaseName("ux_product_variant_sku");
+            e.HasOne<Product>().WithMany().HasForeignKey(v => v.ProductId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ProductImage>(e =>
+        {
+            e.ToTable("product_image");
+            e.HasKey(i => i.Id);
+            e.Property(i => i.Id).HasColumnName("id");
+            e.Property(i => i.ProductId).HasColumnName("product_id");
+            e.Property(i => i.Url).HasColumnName("url").HasMaxLength(500).IsRequired();
+            e.Property(i => i.Alt).HasColumnName("alt").HasMaxLength(200).IsRequired();
+            e.Property(i => i.SortOrder).HasColumnName("sort_order");
+            e.HasOne<Product>().WithMany().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AdminUser>(e =>
+        {
+            e.ToTable("admin_user");
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Id).HasColumnName("id");
+            e.Property(a => a.Email).HasColumnName("email").HasMaxLength(160).IsRequired();
+            e.Property(a => a.PasswordHash).HasColumnName("password_hash").HasMaxLength(400).IsRequired();
+            e.Property(a => a.FailedAttempts).HasColumnName("failed_attempts");
+            e.Property(a => a.LockedUntil).HasColumnName("locked_until");
+            e.HasIndex(a => a.Email).IsUnique().HasDatabaseName("ux_admin_user_email");
         });
     }
 }

@@ -4,6 +4,7 @@ using Corvano.DataAccess.Concrete.EntityFramework.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Corvano.DataAccess.Migrations
 {
     [DbContext(typeof(CorvanoContext))]
-    partial class CorvanoContextModelSnapshot : ModelSnapshot
+    [Migration("20260908210908_CatalogAndAdmin")]
+    partial class CatalogAndAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
