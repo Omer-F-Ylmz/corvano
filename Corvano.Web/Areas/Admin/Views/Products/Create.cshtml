@@ -1,0 +1,28 @@
+@model ProductFormViewModel
+@{
+    ViewData["Title"] = "Ürün ekle";
+}
+
+<div class="page-head">
+    <div>
+        <a class="back-link" asp-area="Admin" asp-controller="Products" asp-action="Index">
+            <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            <span>Ürünler</span>
+        </a>
+        <h1 class="display-2">Yeni ürün</h1>
+        <p class="lead lead--tight">Ürünü kaydettikten sonra beden, renk ve stok satırlarını ekleyebilirsin.</p>
+    </div>
+</div>
+
+<form class="form-card surface-elevated" method="post" asp-area="Admin" asp-controller="Products" asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+    <partial name="_ProductFields" model="Model" />
+
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Ürünü kaydet</span>
+        </button>
+        <a class="btn btn--quiet" asp-area="Admin" asp-controller="Products" asp-action="Index">Vazgeç</a>
+    </div>
+</form>

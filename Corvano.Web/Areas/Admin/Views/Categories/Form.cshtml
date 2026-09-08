@@ -1,0 +1,64 @@
+@model CategoryFormViewModel
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "Kategori ekle" : $"{Model.Name} kategorisi";
+}
+
+<div class="page-head">
+    <div>
+        <a class="back-link" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+            <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            <span>Kategoriler</span>
+        </a>
+        <h1 class="display-2">@(isNew ? "Yeni kategori" : Model.Name)</h1>
+        @if (!isNew)
+        {
+            <p class="slug-line mono">/@Model.Slug</p>
+        }
+    </div>
+</div>
+
+<form class="form-card surface-elevated" method="post"
+      asp-area="Admin" asp-controller="Categories" asp-action="@(isNew ? "Create" : "Edit")">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+    <div class="field">
+        <label class="field__label" asp-for="Name"></label>
+        <input class="field__input" asp-for="Name" autocomplete="off" />
+        <span class="field__hint">Slug addan üretilir; Türkçe harfler ASCII karşılığına düşer.</span>
+        <span class="field__error" asp-validation-for="Name"></span>
+    </div>
+
+    <div class="field-row">
+        <div class="field">
+            <label class="field__label" asp-for="ParentId"></label>
+            <select class="field__input" asp-for="ParentId">
+                <option value="">Üst kategori yok</option>
+                @foreach (var parent in Model.Parents)
+                {
+                    <option value="@parent.Id" selected="@(Model.ParentId == parent.Id)">@parent.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="field">
+            <label class="field__label" asp-for="SortOrder"></label>
+            <input class="field__input" asp-for="SortOrder" type="number" min="0" max="999" />
+            <span class="field__error" asp-validation-for="SortOrder"></span>
+        </div>
+    </div>
+
+    <div class="field field--check">
+        <input class="check" asp-for="IsActive" />
+        <label class="field__label" asp-for="IsActive"></label>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>@(isNew ? "Kategoriyi ekle" : "Değişiklikleri kaydet")</span>
+        </button>
+        <a class="btn btn--quiet" asp-area="Admin" asp-controller="Categories" asp-action="Index">Vazgeç</a>
+    </div>
+</form>

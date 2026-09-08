@@ -1,0 +1,40 @@
+@model ProductFormViewModel
+
+<div class="field">
+    <label class="field__label" asp-for="Name"></label>
+    <input class="field__input" asp-for="Name" autocomplete="off" />
+    <span class="field__hint">Slug addan üretilir; aynı ad ikinci kez girilirse sonuna “-2” eklenir.</span>
+    <span class="field__error" asp-validation-for="Name"></span>
+</div>
+
+<div class="field">
+    <label class="field__label" asp-for="Description"></label>
+    <textarea class="field__input field__input--tall" asp-for="Description" rows="5"></textarea>
+    <span class="field__error" asp-validation-for="Description"></span>
+</div>
+
+<div class="field-row">
+    <div class="field">
+        <label class="field__label" asp-for="CategoryId"></label>
+        <select class="field__input" asp-for="CategoryId">
+            <option value="0">Kategori seçin</option>
+            @foreach (var category in Model.Categories)
+            {
+                <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name</option>
+            }
+        </select>
+        <span class="field__error" asp-validation-for="CategoryId"></span>
+    </div>
+
+    <div class="field">
+        <label class="field__label" asp-for="Price"></label>
+        <input class="field__input" asp-for="Price" type="number" min="0" step="1" />
+        <span class="field__hint">Varyant fiyatı boşsa bu fiyat geçerli.</span>
+        <span class="field__error" asp-validation-for="Price"></span>
+    </div>
+</div>
+
+<div class="field field--check">
+    <input class="check" asp-for="IsActive" />
+    <label class="field__label" asp-for="IsActive"></label>
+</div>

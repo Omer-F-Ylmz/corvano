@@ -1,0 +1,58 @@
+@using System.Globalization
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "Ürünler";
+    var tr = new CultureInfo("tr-TR");
+}
+
+<div class="page-head">
+    <div>
+        <p class="eyebrow">Katalog</p>
+        <h1 class="display-2">Ürünler</h1>
+    </div>
+    <a class="btn btn--primary" asp-area="Admin" asp-controller="Products" asp-action="Create">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        <span>Ürün ekle</span>
+    </a>
+</div>
+
+@if (Model.Products.Count == 0)
+{
+    <p class="empty surface-elevated">Katalog boş. Önce bir kategori, sonra ilk ürünü ekle.</p>
+}
+else
+{
+    <div class="table-wrap surface-elevated">
+        <table class="data-table">
+            <caption class="sr-only">Ürün listesi</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Ad</th>
+                    <th scope="col">Kategori</th>
+                    <th scope="col" class="num">Fiyat</th>
+                    <th scope="col" class="num">Stok</th>
+                    <th scope="col">Durum</th>
+                    <th scope="col"><span class="sr-only">İşlem</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <th scope="row">
+                            @product.Name
+                            <span class="slug-line mono">/@product.Slug</span>
+                        </th>
+                        <td>@(Model.CategoryNames.TryGetValue(product.CategoryId, out var name) ? name : "—")</td>
+                        <td class="num">@product.Price.ToString("N0", tr) ₺</td>
+                        <td class="num">@(Model.StockTotals.TryGetValue(product.Id, out var stock) ? stock : 0)</td>
+                        <td><span class="pill @(product.IsActive ? "pill--live" : "pill--off")">@(product.IsActive ? "Yayında" : "Pasif")</span></td>
+                        <td class="row-actions">
+                            <a class="btn btn--quiet" asp-area="Admin" asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id">Düzenle</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
