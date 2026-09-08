@@ -5,6 +5,7 @@
 - DI: `Business/DependencyResolvers/Autofac/AutofacBusinessModule` içinde manuel `RegisterType`; assembly scan yok.
 - DB: EF Core + SQL Server; dev LocalDB, bağlantı `appsettings.Development.json` (gitignore) ← `appsettings.Development.example.json`.
 - CSS: Tailwind CLI `src/input.css` → `Corvano.Web/wwwroot/css/site.css` (`npm run css:build`); `_Layout.cshtml` tek kaynak; inline `<style>` yasak.
+- Tailwind v4: `@import "tailwindcss" source(none)` + `@source` yalnız Views.
 - Testler: `tests/Corvano.Tests` (xUnit), gerçek SQL Server'a karşı; CI env `ConnectionStrings__Default` ile.
 
 ## Süreç
