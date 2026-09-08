@@ -13,7 +13,14 @@ public class AutofacBusinessModule : Module
     {
         builder.RegisterType<EfUnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
 
+        builder.RegisterType<EfCategoryDal>().As<ICategoryDal>().InstancePerLifetimeScope();
         builder.RegisterType<EfProductDal>().As<IProductDal>().InstancePerLifetimeScope();
+        builder.RegisterType<EfProductVariantDal>().As<IProductVariantDal>().InstancePerLifetimeScope();
+        builder.RegisterType<EfProductImageDal>().As<IProductImageDal>().InstancePerLifetimeScope();
+        builder.RegisterType<EfAdminUserDal>().As<IAdminUserDal>().InstancePerLifetimeScope();
+
+        builder.RegisterType<CategoryManager>().As<ICategoryService>().InstancePerLifetimeScope();
         builder.RegisterType<ProductManager>().As<IProductService>().InstancePerLifetimeScope();
+        builder.RegisterType<AdminAuthManager>().As<IAdminAuthService>().InstancePerLifetimeScope();
     }
 }
