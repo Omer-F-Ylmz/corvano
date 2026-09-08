@@ -1,0 +1,17 @@
+using Corvano.Core.DataAccess;
+using Corvano.DataAccess.Concrete.EntityFramework.Contexts;
+
+namespace Corvano.DataAccess.Concrete.EntityFramework;
+
+public class EfUnitOfWork : IUnitOfWork
+{
+    private readonly CorvanoContext _context;
+
+    public EfUnitOfWork(CorvanoContext context)
+    {
+        _context = context;
+    }
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        => _context.SaveChangesAsync(cancellationToken);
+}

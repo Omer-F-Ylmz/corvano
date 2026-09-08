@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] is string t ? $"{t} · Corvano" : "Corvano")</title>
+    <meta name="description" content="Corvano — erkek giyim. Yakında." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;600&display=swap" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="surface-base">
+    <header class="site-header">
+        <a class="wordmark" href="/" aria-label="Corvano ana sayfa">Corvano</a>
+        <span class="site-header__meta">Erkek giyim</span>
+    </header>
+    <main id="main">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <span>Corvano, @DateTime.UtcNow.Year</span>
+        <a class="footer-link" href="mailto:merhaba@corvano.com">merhaba@corvano.com</a>
+    </footer>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
