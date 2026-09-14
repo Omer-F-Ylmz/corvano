@@ -47,6 +47,23 @@ public static class CatalogFixture
         return await AddProductAsync(context, categoryId, name, slug, isActive, price, ageMinutes, isFeatured);
     }
 
+    public static async Task<int> AddVariantAsync(int productId, string size, int stock, decimal? priceOverride = null)
+    {
+        await using var context = TestDb.NewContext();
+        var variant = new ProductVariant
+        {
+            ProductId = productId,
+            Size = size,
+            Color = "Ekru",
+            Sku = $"T-{productId}-{size}",
+            Stock = stock,
+            PriceOverride = priceOverride
+        };
+        await new EfProductVariantDal(context).AddAsync(variant);
+        await new EfUnitOfWork(context).SaveChangesAsync();
+        return variant.Id;
+    }
+
     private static async Task<int> AddProductAsync(CorvanoContext context, int categoryId, string name, string slug, bool isActive, decimal price = 890m, int ageMinutes = 0, bool isFeatured = false)
     {
         var createdAt = DateTime.UtcNow.AddMinutes(-ageMinutes);
