@@ -7,6 +7,7 @@ using Autofac.Extensions.DependencyInjection;
 using Corvano.Business.Abstract;
 using Corvano.Business.DependencyResolvers.Autofac;
 using Corvano.DataAccess.Concrete.EntityFramework.Contexts;
+using Corvano.Web.ModelBinding;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(container => container.RegisterModule(new AutofacBusinessModule()));
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+    options.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider()));
 
 // Türkçe harfler HTML kaynağında entity'ye çevrilmesin.
 builder.Services.AddSingleton(HtmlEncoder.Create(
@@ -54,12 +56,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Sayı alanları HTML number input'uyla aynı biçimi kullansın (1290.50, 1290,50 değil).
+// Görünüm tr-TR ("1.290,00 ₺"); decimal girdiler InvariantDecimalModelBinder ile kültürden bağımsız bağlanır.
+var turkish = new CultureInfo("tr-TR");
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
-    DefaultRequestCulture = new RequestCulture(CultureInfo.InvariantCulture),
-    SupportedCultures = [CultureInfo.InvariantCulture],
-    SupportedUICultures = [CultureInfo.InvariantCulture]
+    DefaultRequestCulture = new RequestCulture(turkish),
+    SupportedCultures = [turkish],
+    SupportedUICultures = [turkish]
 });
 
 app.UseHttpsRedirection();
@@ -69,6 +72,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health");
+app.MapGet("/admin", () => Results.Redirect("/admin/products"));
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller}/{action=Index}/{id?}");

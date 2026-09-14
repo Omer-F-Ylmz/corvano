@@ -17,18 +17,7 @@ public sealed class AdminCrudFlowTests : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    private static async Task SignInAsync(HttpClient client)
-    {
-        var response = await HtmlForm.PostAsync(client, "/admin/auth/login", "/admin/auth/login",
-            new Dictionary<string, string>
-            {
-                ["Email"] = AdminWebFactory.AdminEmail,
-                ["Password"] = AdminWebFactory.AdminPassword
-            });
-
-        Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-        Assert.Equal("/admin/products", response.Headers.Location!.OriginalString);
-    }
+    private static Task SignInAsync(HttpClient client) => HtmlForm.SignInAsAdminAsync(client);
 
     [Fact]
     public async Task Signing_in_with_a_wrong_password_keeps_the_visitor_on_the_login_page()

@@ -54,7 +54,7 @@ public class ProductManager : IProductService
 
     public async Task<(HttpStatusCode, IResult)> UpdateAsync(Product product, CancellationToken cancellationToken = default)
     {
-        var stored = await _productDal.GetAsync(p => p.Id == product.Id, cancellationToken);
+        var stored = await _productDal.GetTrackedAsync(p => p.Id == product.Id, cancellationToken);
         if (stored is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Ürün bulunamadı."));
@@ -75,7 +75,7 @@ public class ProductManager : IProductService
 
     public async Task<(HttpStatusCode, IResult)> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var product = await _productDal.GetAsync(p => p.Id == id, cancellationToken);
+        var product = await _productDal.GetTrackedAsync(p => p.Id == id, cancellationToken);
         if (product is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Ürün bulunamadı."));
@@ -118,7 +118,7 @@ public class ProductManager : IProductService
             return (HttpStatusCode.BadRequest, new ErrorResult("Stok negatif olamaz."));
         }
 
-        var variant = await _variantDal.GetAsync(v => v.Id == variantId, cancellationToken);
+        var variant = await _variantDal.GetTrackedAsync(v => v.Id == variantId, cancellationToken);
         if (variant is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Varyant bulunamadı."));
@@ -132,7 +132,7 @@ public class ProductManager : IProductService
 
     public async Task<(HttpStatusCode, IResult)> DeleteVariantAsync(int variantId, CancellationToken cancellationToken = default)
     {
-        var variant = await _variantDal.GetAsync(v => v.Id == variantId, cancellationToken);
+        var variant = await _variantDal.GetTrackedAsync(v => v.Id == variantId, cancellationToken);
         if (variant is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Varyant bulunamadı."));
@@ -158,7 +158,7 @@ public class ProductManager : IProductService
 
     public async Task<(HttpStatusCode, IResult)> DeleteImageAsync(int imageId, CancellationToken cancellationToken = default)
     {
-        var image = await _imageDal.GetAsync(i => i.Id == imageId, cancellationToken);
+        var image = await _imageDal.GetTrackedAsync(i => i.Id == imageId, cancellationToken);
         if (image is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Görsel bulunamadı."));

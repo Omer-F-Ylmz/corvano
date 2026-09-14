@@ -43,6 +43,19 @@ public static class HtmlForm
         return match.Groups[1].Value;
     }
 
+    public static async Task SignInAsAdminAsync(HttpClient client)
+    {
+        var response = await PostAsync(client, "/admin/auth/login", "/admin/auth/login",
+            new Dictionary<string, string>
+            {
+                ["Email"] = AdminWebFactory.AdminEmail,
+                ["Password"] = AdminWebFactory.AdminPassword
+            });
+
+        Assert.Equal(HttpStatusCode.Found, response.StatusCode);
+        Assert.Equal("/admin/products", response.Headers.Location!.OriginalString);
+    }
+
     public static async Task<HttpResponseMessage> PostAsync(
         HttpClient client,
         string formUrl,

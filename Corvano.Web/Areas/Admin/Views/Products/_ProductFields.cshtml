@@ -28,7 +28,7 @@
 
     <div class="field">
         <label class="field__label" asp-for="Price"></label>
-        <input class="field__input" asp-for="Price" type="number" min="0" step="1" />
+        <input class="field__input" asp-for="Price" type="number" min="0" step="0.01" value="@Model.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
         <span class="field__hint">Varyant fiyatı boşsa bu fiyat geçerli.</span>
         <span class="field__error" asp-validation-for="Price"></span>
     </div>

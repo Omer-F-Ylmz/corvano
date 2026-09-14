@@ -45,7 +45,7 @@ public class CategoryManager : ICategoryService
 
     public async Task<(HttpStatusCode, IResult)> UpdateAsync(Category category, CancellationToken cancellationToken = default)
     {
-        var stored = await _categoryDal.GetAsync(c => c.Id == category.Id, cancellationToken);
+        var stored = await _categoryDal.GetTrackedAsync(c => c.Id == category.Id, cancellationToken);
         if (stored is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Kategori bulunamadı."));
@@ -64,7 +64,7 @@ public class CategoryManager : ICategoryService
 
     public async Task<(HttpStatusCode, IResult)> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var category = await _categoryDal.GetAsync(c => c.Id == id, cancellationToken);
+        var category = await _categoryDal.GetTrackedAsync(c => c.Id == id, cancellationToken);
         if (category is null)
         {
             return (HttpStatusCode.NotFound, new ErrorResult("Kategori bulunamadı."));

@@ -26,7 +26,7 @@ public class AdminAuthManager : IAdminAuthService
 
     public async Task<(HttpStatusCode, IDataResult<AdminUser>)> SignInAsync(string email, string password, CancellationToken cancellationToken = default)
     {
-        var admin = await _adminUserDal.GetAsync(a => a.Email == email, cancellationToken);
+        var admin = await _adminUserDal.GetTrackedAsync(a => a.Email == email, cancellationToken);
         if (admin is null)
         {
             return (HttpStatusCode.Unauthorized, new ErrorDataResult<AdminUser>(CredentialsMessage));
