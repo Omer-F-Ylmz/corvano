@@ -2,8 +2,8 @@
 @{
     var product = Model.Product;
     var url = $"/urun/{product.Slug}";
-    // görsel kabı koyu yeşil: koyu zeminli fotoğraf önce
-    var images = Storefront.ForTheme(Model.Images, dark: true);
+    // görsel kabı açık ton: açık zeminli fotoğraf önce
+    var images = Storefront.ForTheme(Model.Images, dark: false);
     var primary = images.ElementAtOrDefault(0);
     var secondary = images.ElementAtOrDefault(1);
 }

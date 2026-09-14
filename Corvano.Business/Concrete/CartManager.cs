@@ -263,7 +263,7 @@ public class CartManager : ICartService
                 product.Slug,
                 top?.Slug ?? string.Empty,
                 variant.Size,
-                images.Where(i => i.ProductId == product.Id).OrderByDescending(i => i.Url.Contains("-dark.", StringComparison.Ordinal)).ThenBy(i => i.SortOrder).FirstOrDefault(),
+                images.Where(i => i.ProductId == product.Id).OrderBy(i => i.Url.Contains("-dark.", StringComparison.Ordinal)).ThenBy(i => i.SortOrder).FirstOrDefault(),
                 item.Quantity,
                 item.UnitPrice,
                 variant.Stock,

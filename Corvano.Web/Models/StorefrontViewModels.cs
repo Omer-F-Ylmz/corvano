@@ -56,7 +56,7 @@ public static class Storefront
 
     public static string Silhouette(string categorySlug) => Silhouettes.GetValueOrDefault(categorySlug, Silhouettes["gomlek"]);
 
-    /// <summary>Sayfa zeminine uyan fotoğraf önce: koyu sayfada "-dark" eşi, krem sayfada açık zeminli olan.</summary>
+    /// <summary>Yalnız zemine uyan fotoğraflar: açık görsel kabında "-dark" eşi listeye girmez (koyu kutu çıkmaz).</summary>
     public static List<ProductImage> ForTheme(IEnumerable<ProductImage> images, bool dark)
-        => images.OrderByDescending(i => i.Url.Contains("-dark.", StringComparison.Ordinal) == dark).ThenBy(i => i.SortOrder).ToList();
+        => images.Where(i => i.Url.Contains("-dark.", StringComparison.Ordinal) == dark).OrderBy(i => i.SortOrder).ToList();
 }

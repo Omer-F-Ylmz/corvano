@@ -4,10 +4,10 @@
     var info = Model.Page;
     var product = info.Product;
     var fabric = Model.Fabric;
-    // koyu sayfada koyu zeminli fotoğraf önce gelir
-    var gallery = Storefront.ForTheme(info.Images, dark: true);
+    // görsel kabı açık ton: açık zeminli fotoğraf önce gelir
+    var gallery = Storefront.ForTheme(info.Images, dark: false);
     var main = gallery.FirstOrDefault();
-    // kumaş yakınlaştırması da koyu görsel kabında: koyu zeminli fotoğraf
+    // kumaş yakınlaştırması da aynı açık zeminli fotoğraf
     var detail = main;
     var sizeLabel = Model.IsAccessory ? "Seçenek" : "Beden";
     var hasPhotos = gallery.Any(Storefront.IsPhoto);

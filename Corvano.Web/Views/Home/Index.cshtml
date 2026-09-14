@@ -4,7 +4,7 @@
 }
 
 <section class="hero" aria-labelledby="hero-title">
-    <img class="hero__image" src="/img/products/yaka-cicegi-gri-1-dark.webp" alt="Koyu zeminde gri güllü yaka çiçeği" width="1280" height="1600" fetchpriority="high" />
+    <img class="hero__image" src="/img/products/yaka-cicegi-gri-1.webp" alt="Gri köpük güller ve puantiyeli tülle sarılmış yaka çiçeği" width="1280" height="1600" fetchpriority="high" />
     <div class="hero__copy">
         <h1 id="hero-title" class="hero__title">
             <span class="hero__line hero__line--a">Sabırla</span>
@@ -48,7 +48,7 @@
                 <li class="cat-card">
                     <a class="cat-card__link" href="/koleksiyon/@item.Category.Slug">
                         <span class="cat-card__media">
-                            <partial name="_ProductVisual" model="@(new VisualModel(sample is null ? null : Storefront.ForTheme(sample.Images, dark: true).FirstOrDefault(), item.Category.Slug, item.Category.Name))" />
+                            <partial name="_ProductVisual" model="@(new VisualModel(sample is null ? null : Storefront.ForTheme(sample.Images, dark: false).FirstOrDefault(), item.Category.Slug, item.Category.Name))" />
                         </span>
                         <span class="cat-card__name">@item.Category.Name</span>
                         <span class="cat-card__count">@item.ProductCount parça</span>
