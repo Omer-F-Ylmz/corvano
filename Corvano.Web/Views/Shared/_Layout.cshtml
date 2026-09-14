@@ -1,5 +1,4 @@
 @{
-    var theme = ViewData["Theme"] as string ?? "dark";
     var title = ViewData["Title"] is string t ? $"{t} · Corvano" : "Corvano — İstanbul'da dikilen erkek giyim";
     var description = ViewData["Description"] as string ?? "Corvano: İstanbul atölyesinde dikilen gömlek, pantolon, dış giyim, triko ve aksesuar.";
     var origin = $"{Context.Request.Scheme}://{Context.Request.Host}";
@@ -7,7 +6,7 @@
     var current = Context.Request.Path.Value ?? "/";
 }
 <!DOCTYPE html>
-<html lang="tr" class="theme-@theme">
+<html lang="tr" class="theme-light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

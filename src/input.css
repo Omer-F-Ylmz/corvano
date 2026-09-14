@@ -83,11 +83,10 @@
   /* 3 yüzey seviyesi: base → elevated → floating */
   .surface-base {
     background-color: var(--c-neutral);
+    /* vitrinle aynı tek zemin: krem, ±1-2 ton vignette, yönsüz grain 0.025 */
     background-image:
-      radial-gradient(60% 50% at 8% 0%, rgb(31 58 46 / 0.14) 0%, transparent 60%),
-      radial-gradient(45% 40% at 100% 100%, rgb(200 128 45 / 0.16) 0%, transparent 60%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
-    background-attachment: fixed, fixed, scroll;
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse 90% 75% at 50% 35%, #f6f4ee 0%, #f4f1ea 55%, #f0ede5 100%);
   }
 
   .surface-elevated {
@@ -833,7 +832,11 @@
      Kuzgun imzası: altın eğri (ana sayfa bölüm geçişi, ürün detay galeri sonrası). Başka motif yok.
      Zemin: düz renk üzerinde tek radial vignette + yönsüz film grain. */
 
-  .theme-dark {
+  /* koyu yeşil artık sayfa zemini değil: yalnız üst bar, alt bar, satın alma kutusu gibi bileşen yüzeyleri */
+  .theme-dark,
+  .topbar,
+  .site-footer,
+  .buybox {
     --bg: #14261e;
     --bg-elevated: #1f3a2e;
     --ink: #f4f1ea;
@@ -842,9 +845,8 @@
     --line: rgb(143 174 156 / 0.28);
     --accent-ink: #dea664;
     --focus: #dea664;
-    /* stüdyo zemini: merkez hafif açık, kenarlar koyu (#14261e'den türetilmiş) */
-    --vignette: radial-gradient(ellipse 90% 75% at 50% 35%, #1a3128 0%, #14261e 55%, #0f1e17 100%);
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.24), 0 16px 32px -16px rgb(0 0 0 / 0.48), 0 32px 64px -32px rgb(8 16 12 / 0.56);
+    color: var(--ink);
     color-scheme: dark;
   }
 
@@ -857,11 +859,11 @@
     --line: #e6e1d6;
     --accent-ink: #8a5416;
     --focus: #8a5416;
-    --vignette: radial-gradient(ellipse 90% 75% at 50% 35%, #f8f6f0 0%, #f4f1ea 55%, #ebe6dc 100%);
+    /* tek zemin #f4f1ea; vignette ±1-2 ton, gözle doku değil ışık farkı */
+    --vignette: radial-gradient(ellipse 90% 75% at 50% 35%, #f6f4ee 0%, #f4f1ea 55%, #f0ede5 100%);
     --shadow-card: 0 1px 2px rgb(31 58 46 / 0.06), 0 16px 32px -16px rgb(31 58 46 / 0.18), 0 32px 64px -32px rgb(31 58 46 / 0.22);
   }
 
-  html.theme-dark,
   html.theme-light {
     color: var(--ink);
     background-color: var(--bg);
@@ -872,7 +874,7 @@
     position: relative;
   }
 
-  /* yönsüz film grain: izotropik fractalNoise, 240px karo (stitchTiles ile dikişsiz), opaklık 0.04 */
+  /* yönsüz film grain: izotropik fractalNoise, 240px karo (stitchTiles ile dikişsiz), krem üzerinde opaklık 0.025 */
   .storefront::before {
     content: "";
     position: absolute;
@@ -881,7 +883,7 @@
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 240px 240px;
-    opacity: 0.04;
+    opacity: 0.025;
   }
 
   .storefront h1,
@@ -1113,46 +1115,30 @@
   }
 
   /* HERO — 70svh, başlık + tek çağrı */
+  /* krem zemin; koyu yeşil yalnız görsel kabında */
   .hero {
-    position: relative;
     display: grid;
-    align-items: center;
+    align-content: center;
+    gap: 24px;
     min-height: 70svh;
-    overflow: hidden;
-  }
-
-  /* görsel ve üstündeki geçiş katmanı aynı kutuyu paylaşır; zemin boyunca bant/sınır oluşmaz */
-  .hero__image,
-  .hero::after {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    height: 48%;
-    width: auto;
-    max-width: 100%;
-    aspect-ratio: 4 / 5;
-    mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+    padding-block: 48px;
   }
 
   .hero__image {
+    grid-row: 2;
+    justify-self: end;
+    width: 56%;
+    height: auto;
+    margin-right: 16px;
+    aspect-ratio: 4 / 5;
     object-fit: cover;
-    opacity: 0.55;
-  }
-
-  /* görsel üstü koyu geçiş + marka rengi çarpma katmanı */
-  .hero::after {
-    content: "";
-    background:
-      linear-gradient(to top, rgb(0 0 0 / 0.6), transparent 40%),
-      rgb(31 58 46 / 0.3);
-    mix-blend-mode: multiply;
-    pointer-events: none;
+    border-radius: 16px;
+    background: #14261e;
+    box-shadow: var(--shadow-card);
   }
 
   .hero__copy {
-    position: relative;
-    z-index: 1;
-    padding-block: 48px;
+    grid-row: 1;
   }
 
   .hero__title {
@@ -1165,18 +1151,21 @@
     letter-spacing: -0.03em;
   }
 
+  /* #2f5644 krem üzerinde 7.3:1 */
   .hero__line--b {
     font-style: italic;
-    color: var(--accent-ink);
+    color: var(--c-brand-500);
   }
 
+  /* birincil çağrı: koyu yeşil dolgu, krem metin (turuncu dolgu değil) */
   .btn--primary-dark {
-    background: var(--c-accent);
-    color: #14261e;
+    background: var(--c-brand);
+    color: var(--c-neutral);
     box-shadow: var(--shadow-card);
   }
 
   .btn--primary-dark:hover {
+    background: var(--c-brand-900);
     transform: translateY(-2px);
   }
 
@@ -1186,7 +1175,7 @@
   }
 
   .btn--primary-dark:focus-visible {
-    outline: 2px solid var(--ink-strong);
+    outline: 2px solid var(--focus);
     outline-offset: 4px;
   }
 
@@ -1293,7 +1282,7 @@
     max-width: 100%;
     overflow: hidden;
     border-radius: 8px;
-    background: var(--bg-elevated);
+    background: #14261e;
     box-shadow: var(--shadow-card);
   }
 
@@ -1405,7 +1394,7 @@
     margin: 0;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: var(--ink-strong);
+    color: var(--accent-ink);
   }
 
   /* beden noktaları — yerel radio grubu, ok tuşlarıyla gezilir */
@@ -1548,7 +1537,7 @@
     max-width: 100%;
     overflow: hidden;
     border-radius: 8px;
-    background: var(--bg-elevated);
+    background: #14261e;
     box-shadow: var(--shadow-card);
   }
 
@@ -1763,7 +1752,7 @@
     max-width: 100%;
     overflow: hidden;
     border-radius: 8px;
-    background: var(--bg-elevated);
+    background: #14261e;
     box-shadow: var(--shadow-card);
   }
 
@@ -1782,7 +1771,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     overflow: hidden;
-    background: var(--bg-elevated);
+    background: #14261e;
     cursor: pointer;
     transition: transform 240ms var(--ease);
   }
@@ -1896,6 +1885,11 @@
   }
 
   /* hikâye blokları — galerinin altında tam genişlik */
+  /* altın eğri kalktı: galeri ile hikâye blokları arasındaki boşluk kabın kendisinde */
+  .stories {
+    margin-top: 64px;
+  }
+
   .story {
     display: grid;
     gap: 16px;
@@ -1950,6 +1944,8 @@
     aspect-ratio: 4 / 5;
     overflow: hidden;
     border-radius: 8px;
+    background: #14261e;
+    box-shadow: var(--shadow-card);
   }
 
   .zoom__img {
@@ -2064,9 +2060,12 @@
     gap: 16px;
     margin-top: 64px;
     padding-block: 32px;
-    border-top: 1px solid var(--line);
     font-size: 14px;
     color: var(--muted);
+    /* koyu şerit kap genişliğini aşar, kenardan kenara uzanır */
+    background: var(--bg);
+    box-shadow: 0 0 0 100vmax var(--bg);
+    clip-path: inset(0 -100vmax);
   }
 
   .site-footer__line {
@@ -2112,12 +2111,21 @@
       font-size: 96px;
     }
 
-    .hero__image,
-    .hero::after {
-      top: 16%;
-      bottom: auto;
-      right: 32px;
-      height: 68%;
+    .hero {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .hero__copy {
+      grid-column: 1;
+    }
+
+    .hero__image {
+      grid-column: 2;
+      grid-row: 1;
+      width: auto;
+      height: 48svh;
+      margin-right: 32px;
     }
 
     .product-grid {
@@ -2194,12 +2202,15 @@
       font-size: 128px;
     }
 
-    /* ölçek küçük, merkeze yakın: metin bloğuyla arasında nefes payı */
-    .hero__image,
-    .hero::after {
-      top: 12%;
-      right: 18%;
-      height: 76%;
+    /* kırık simetri: metin 7/12, görsel 5/12 kolonun ortasında; arada nefes payı */
+    .hero {
+      grid-template-columns: 7fr 5fr;
+    }
+
+    .hero__image {
+      justify-self: center;
+      height: 52svh;
+      margin-right: 0;
     }
 
     .product-grid,

@@ -7,10 +7,10 @@
     // koyu sayfada koyu zeminli fotoğraf önce gelir
     var gallery = Storefront.ForTheme(info.Images, dark: true);
     var main = gallery.FirstOrDefault();
-    var detail = gallery.ElementAtOrDefault(1) ?? main;
+    // kumaş yakınlaştırması da koyu görsel kabında: koyu zeminli fotoğraf
+    var detail = main;
     var sizeLabel = Model.IsAccessory ? "Seçenek" : "Beden";
     var hasPhotos = gallery.Any(Storefront.IsPhoto);
-    ViewData["Theme"] = "dark";
     ViewData["Title"] = product.Name;
     ViewData["Description"] = $"{product.Name}: {fabric.Fabric}. {Storefront.Price(product.Price)}. 2-4 iş gününde kargo, 14 gün iade.";
     ViewData["OgType"] = "product";
@@ -92,8 +92,6 @@
         </p>
     </section>
 </div>
-
-<partial name="_Seam" model="@("detail")" />
 
 <div class="stories">
     <section class="story" aria-labelledby="fabric-title" data-reveal>

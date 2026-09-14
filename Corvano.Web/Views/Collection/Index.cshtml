@@ -1,7 +1,6 @@
 @model CollectionPageDto
 @{
     var heading = Model.ActiveSubcategory?.Name ?? Model.Category.Name;
-    ViewData["Theme"] = "light";
     ViewData["Title"] = heading;
     ViewData["Description"] = $"Corvano {heading.ToLower(new System.Globalization.CultureInfo("tr-TR"))}: {Model.Products.Count} parça, beden seçenekleri ve fiyatlarıyla.";
     var ogImage = Storefront.ForTheme(Model.Products.SelectMany(p => p.Images).Where(Storefront.IsPhoto), dark: false).FirstOrDefault();
