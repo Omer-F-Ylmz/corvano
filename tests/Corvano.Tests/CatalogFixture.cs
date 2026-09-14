@@ -41,13 +41,13 @@ public static class CatalogFixture
         return category.Id;
     }
 
-    public static async Task AddProductAsync(int categoryId, string name, string slug, decimal price = 890m, bool isActive = true, int ageMinutes = 0)
+    public static async Task<int> AddProductAsync(int categoryId, string name, string slug, decimal price = 890m, bool isActive = true, int ageMinutes = 0, bool isFeatured = false)
     {
         await using var context = TestDb.NewContext();
-        await AddProductAsync(context, categoryId, name, slug, isActive, price, ageMinutes);
+        return await AddProductAsync(context, categoryId, name, slug, isActive, price, ageMinutes, isFeatured);
     }
 
-    private static async Task AddProductAsync(CorvanoContext context, int categoryId, string name, string slug, bool isActive, decimal price = 890m, int ageMinutes = 0)
+    private static async Task<int> AddProductAsync(CorvanoContext context, int categoryId, string name, string slug, bool isActive, decimal price = 890m, int ageMinutes = 0, bool isFeatured = false)
     {
         var createdAt = DateTime.UtcNow.AddMinutes(-ageMinutes);
         var product = new Product
@@ -58,10 +58,12 @@ public static class CatalogFixture
             CategoryId = categoryId,
             Price = price,
             IsActive = isActive,
+            IsFeatured = isFeatured,
             CreatedAt = createdAt,
             UpdatedAt = createdAt
         };
         await new EfProductDal(context).AddAsync(product);
         await new EfUnitOfWork(context).SaveChangesAsync();
+        return product.Id;
     }
 }

@@ -43,9 +43,29 @@ public sealed class CatalogSeedManagerTests : IAsyncLifetime
         await SeedAsync();
         var second = await CountAsync(context);
 
-        Assert.Equal((5, 3, 12), (first.Top, first.Sub, first.Products));
-        Assert.True(first.Variants >= 24, $"her üründe ≥2 varyant beklenir, {first.Variants} var");
-        Assert.True(first.Images >= 12, $"her üründe ≥1 görsel beklenir, {first.Images} var");
+        Assert.Equal((5, 3, 20), (first.Top, first.Sub, first.Products));
+        Assert.True(first.Variants >= 40, $"her üründe ≥2 varyant beklenir, {first.Variants} var");
+        Assert.True(first.Images >= 20, $"her üründe ≥1 görsel beklenir, {first.Images} var");
         Assert.Equal(first, second);
+    }
+
+    [Fact]
+    public async Task Every_top_category_gets_at_least_four_products_and_the_photographed_accessories_are_featured()
+    {
+        await SeedAsync();
+        await using var context = TestDb.NewContext();
+        var categories = await new EfCategoryDal(context).GetListAsync();
+        var products = await new EfProductDal(context).GetListAsync();
+        var images = await new EfProductImageDal(context).GetListAsync();
+
+        foreach (var top in categories.Where(c => c.ParentId is null))
+        {
+            var tree = categories.Where(c => c.Id == top.Id || c.ParentId == top.Id).Select(c => c.Id).ToHashSet();
+            Assert.True(products.Count(p => tree.Contains(p.CategoryId)) >= 4, $"{top.Name} kategorisinde 4'ten az ürün var");
+        }
+
+        var featured = products.Where(p => p.IsFeatured).ToList();
+        Assert.Equal(4, featured.Count);
+        Assert.All(featured, p => Assert.Contains(images, i => i.ProductId == p.Id && i.Url.StartsWith("/img/products/")));
     }
 }

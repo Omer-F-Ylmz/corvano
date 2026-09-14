@@ -42,6 +42,7 @@ public class CorvanoContext : DbContext
             e.Property(p => p.CategoryId).HasColumnName("category_id");
             e.Property(p => p.Price).HasColumnName("price").HasPrecision(18, 2);
             e.Property(p => p.IsActive).HasColumnName("is_active");
+            e.Property(p => p.IsFeatured).HasColumnName("is_featured");
             e.Property(p => p.CreatedAt).HasColumnName("created_at");
             e.Property(p => p.UpdatedAt).HasColumnName("updated_at");
             e.HasIndex(p => p.Slug).IsUnique().HasDatabaseName("ux_product_slug");

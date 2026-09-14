@@ -11,6 +11,7 @@ public class Product : IEntity
     public int CategoryId { get; set; }
     public decimal Price { get; set; }
     public bool IsActive { get; set; }
+    public bool IsFeatured { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

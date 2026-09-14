@@ -35,6 +35,25 @@ public sealed class CatalogShopTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Featured_products_lead_the_featured_list_even_when_they_are_older()
+    {
+        var shirts = await CatalogFixture.AddCategoryAsync("Gömlek", "gomlek", 1);
+        for (var i = 1; i <= 10; i++)
+        {
+            await CatalogFixture.AddProductAsync(shirts, $"Gömlek {i}", $"gomlek-{i}", ageMinutes: i);
+        }
+
+        await CatalogFixture.AddProductAsync(shirts, "Öne Çıkan A", "one-cikan-a", ageMinutes: 500, isFeatured: true);
+        await CatalogFixture.AddProductAsync(shirts, "Öne Çıkan B", "one-cikan-b", ageMinutes: 600, isFeatured: true);
+        await using var context = TestDb.NewContext();
+
+        var (_, result) = await NewService(context).GetFeaturedAsync(8);
+
+        Assert.Equal(8, result.Data!.Count);
+        Assert.Equal(["one-cikan-a", "one-cikan-b"], result.Data.Take(2).Select(card => card.Product.Slug));
+    }
+
+    [Fact]
     public async Task Similar_products_come_from_the_same_category_exclude_the_product_and_stop_at_four()
     {
         var shirts = await CatalogFixture.AddCategoryAsync("Gömlek", "gomlek", 1);

@@ -90,7 +90,7 @@ public class CatalogManager : ICatalogService
     public async Task<(HttpStatusCode, IDataResult<List<ProductCardDto>>)> GetFeaturedAsync(int count, CancellationToken cancellationToken = default)
     {
         var products = await _productDal.GetListAsync(p => p.IsActive, cancellationToken);
-        var newest = Sorted(products, CollectionSort.Newest).Take(count).ToList();
+        var newest = Sorted(products, CollectionSort.Newest).OrderByDescending(p => p.IsFeatured).Take(count).ToList();
         return (HttpStatusCode.OK, new SuccessDataResult<List<ProductCardDto>>(await CardsAsync(newest, cancellationToken)));
     }
 

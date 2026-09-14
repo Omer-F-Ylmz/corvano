@@ -8,7 +8,7 @@ using Corvano.Entities.Concrete;
 
 namespace Corvano.Business.Concrete;
 
-/// <summary>Geliştirme kataloğu: 5 üst + 3 alt kategori, 12 ürün. Kayıtlar slug / SKU / görsel adresiyle eşlenir.</summary>
+/// <summary>Geliştirme kataloğu: 5 üst + 3 alt kategori, 20 ürün (her üst kategoride ≥4); fotoğraflı aksesuarlar öne çıkan. Kayıtlar slug / SKU / görsel adresiyle eşlenir.</summary>
 public class CatalogSeedManager : ICatalogSeedService
 {
     private sealed record SeedProduct(
@@ -19,7 +19,8 @@ public class CatalogSeedManager : ICatalogSeedService
         string Description,
         string Color,
         (string Size, int Stock)[] Variants,
-        (string Url, string Alt)[] Images);
+        (string Url, string Alt)[] Images,
+        bool IsFeatured = false);
 
     private static readonly (string Name, string? Parent)[] Categories =
     [
@@ -39,6 +40,14 @@ public class CatalogSeedManager : ICatalogSeedService
         Clothing("Dış Giyim", "Yün Flanel Blazer", "YB", 5490m, "%100 yün flanel | Türkiye | Kuru temizleme; giydikten sonra askıda havalandırın", "Koyu gri"),
         Clothing("Triko", "Merinos Balıkçı Yaka Triko", "MB", 2190m, "%100 merinos yünü | Türkiye | 30°C'de elde yıkayın, düz serip kurutun", "Kömür"),
         Clothing("Triko", "Kaşmir Karışımlı V Yaka Triko", "KV", 2690m, "%90 yün, %10 kaşmir | Türkiye | Elde yıkayın, sıkmadan düz kurutun", "Deve tüyü"),
+        Clothing("Gömlek", "Hakim Yaka Poplin Gömlek", "HP", 1490m, "%100 pamuk poplin | Türkiye | 40°C'de yıkayın, ters çevirip ütüleyin", "Beyaz"),
+        Clothing("Gömlek", "Flanel Ekose Gömlek", "FE", 1790m, "%100 pamuk flanel | Türkiye | 30°C'de ters yıkayın, asarak kurutun", "Yeşil ekose"),
+        Clothing("Pantolon", "Kadife Pantolon", "KD", 2390m, "%98 pamuk, %2 elastan fitilli kadife | Türkiye | 30°C'de ters yıkayın, ütülemeyin", "Kahve"),
+        Clothing("Pantolon", "Keten Bol Paça Pantolon", "KB", 2290m, "%100 keten | Türkiye | 30°C'de yıkayın, nemliyken ütüleyin", "Bej"),
+        Clothing("Dış Giyim", "Mont Kaban", "MK", 5990m, "%70 yün, %30 poliamid | Türkiye | Yalnız kuru temizleme", "Antrasit"),
+        Clothing("Dış Giyim", "Pamuklu Trençkot", "PT", 4890m, "%100 pamuk gabardin | Türkiye | Kuru temizleme; askıda saklayın", "Taş"),
+        Clothing("Triko", "Yün Hırka", "YH", 2490m, "%100 kuzu yünü | Türkiye | Elde yıkayın, düz serip kurutun", "Lacivert"),
+        Clothing("Triko", "Pamuk Polo Yaka Triko", "PP", 1990m, "%100 pamuk | Türkiye | 30°C'de yıkayın, düz kurutun", "Ekru"),
         Accessory("Yaka Çiçeği", "Gri Gül Yaka Çiçeği", "YCG", 690m, "Köpük gül, tül ve saten kordon | Türkiye | Kutusunda, nemden uzak saklayın", "Gri",
             [("İğneli", 6), ("Klipsli", 3)], "yaka-cicegi-gri-1", "Gri köpük güller ve puantiyeli tülle sarılmış yaka çiçeği"),
         Accessory("Broş & Zincir", "Füme Zincirli Broş Takımı", "BZF", 890m, "Köpük gül, füme metal zincir | Türkiye | Zinciri kuru bezle silin, nemden uzak tutun", "Füme",
@@ -112,10 +121,19 @@ public class CatalogSeedManager : ICatalogSeedService
                     CategoryId = categoryIds[seed.Category],
                     Price = seed.Price,
                     IsActive = true,
+                    IsFeatured = seed.IsFeatured,
                     CreatedAt = createdAt.AddMinutes(-i),
                     UpdatedAt = createdAt.AddMinutes(-i)
                 };
                 await _productDal.AddAsync(product, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                added++;
+            }
+            else if (seed.IsFeatured && !product.IsFeatured)
+            {
+                // önceki seed'le yazılmış aksesuar: öne çıkan işaretini sonradan alır
+                product.IsFeatured = true;
+                _productDal.Update(product);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 added++;
             }
@@ -163,7 +181,7 @@ public class CatalogSeedManager : ICatalogSeedService
         [
             ($"/img/products/{photo}.webp", alt),
             ($"/img/products/{photo}-dark.webp", $"{alt}, koyu zeminde")
-        ]);
+        ], IsFeatured: true);
 
     /// <summary>Gerçek fotoğraf gelene kadar koyu zeminli yer tutucu (1280x1600, 4:5).</summary>
     private static string Placeholder(string name, string view)

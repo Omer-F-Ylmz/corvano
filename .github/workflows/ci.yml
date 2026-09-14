@@ -61,3 +61,22 @@ jobs:
           name: test-results
           path: "**/TestResults/*.trx"
           if-no-files-found: ignore
+
+  image-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/img/requirements.txt
+
+      - name: Install
+        run: pip install -r tools/img/requirements.txt
+
+      - name: Test
+        working-directory: tools/img
+        run: python -m pytest -q
