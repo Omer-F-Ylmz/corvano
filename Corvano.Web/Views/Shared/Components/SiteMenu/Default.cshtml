@@ -1,0 +1,13 @@
+@model List<Corvano.Entities.Concrete.Category>
+@{
+    var current = ViewContext.HttpContext.Request.Path.Value ?? "/";
+}
+<nav id="site-menu" class="topbar__nav" aria-label="Kategoriler" data-site-menu>
+    <ul class="topbar__list">
+        @foreach (var category in Model)
+        {
+            var href = $"/koleksiyon/{category.Slug}";
+            <li><a class="topbar__link" href="@href" aria-current="@(current.StartsWith(href, StringComparison.Ordinal) ? "page" : null)">@category.Name</a></li>
+        }
+    </ul>
+</nav>

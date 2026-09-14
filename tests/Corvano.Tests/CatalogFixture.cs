@@ -32,18 +32,34 @@ public static class CatalogFixture
         await AddProductAsync(context, boutonnieres.Id, "Gri Yaka Çiçeği", Boutonniere, isActive: true);
     }
 
-    private static async Task AddProductAsync(CorvanoContext context, int categoryId, string name, string slug, bool isActive)
+    public static async Task<int> AddCategoryAsync(string name, string slug, int sortOrder, bool isActive = true, int? parentId = null)
     {
+        await using var context = TestDb.NewContext();
+        var category = new Category { Name = name, Slug = slug, SortOrder = sortOrder, IsActive = isActive, ParentId = parentId };
+        await new EfCategoryDal(context).AddAsync(category);
+        await new EfUnitOfWork(context).SaveChangesAsync();
+        return category.Id;
+    }
+
+    public static async Task AddProductAsync(int categoryId, string name, string slug, decimal price = 890m, bool isActive = true, int ageMinutes = 0)
+    {
+        await using var context = TestDb.NewContext();
+        await AddProductAsync(context, categoryId, name, slug, isActive, price, ageMinutes);
+    }
+
+    private static async Task AddProductAsync(CorvanoContext context, int categoryId, string name, string slug, bool isActive, decimal price = 890m, int ageMinutes = 0)
+    {
+        var createdAt = DateTime.UtcNow.AddMinutes(-ageMinutes);
         var product = new Product
         {
             Name = name,
             Slug = slug,
             Description = "%100 ipek | Türkiye | Kuru temizleme",
             CategoryId = categoryId,
-            Price = 890m,
+            Price = price,
             IsActive = isActive,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = createdAt,
+            UpdatedAt = createdAt
         };
         await new EfProductDal(context).AddAsync(product);
         await new EfUnitOfWork(context).SaveChangesAsync();

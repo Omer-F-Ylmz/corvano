@@ -6,6 +6,8 @@ namespace Corvano.Web.Controllers;
 
 public class HomeController : Controller
 {
+    private const int FeaturedCount = 8;
+
     private readonly ICatalogService _catalogService;
 
     public HomeController(ICatalogService catalogService)
@@ -15,8 +17,9 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var (_, strips) = await _catalogService.GetHomeStripsAsync(cancellationToken);
-        return View(new HomeViewModel(strips.Data!));
+        var (_, featured) = await _catalogService.GetFeaturedAsync(FeaturedCount, cancellationToken);
+        var (_, categories) = await _catalogService.GetHomeCategoriesAsync(cancellationToken);
+        return View(new HomeViewModel(featured.Data!, categories.Data!));
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

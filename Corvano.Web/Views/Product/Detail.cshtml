@@ -4,18 +4,19 @@
     var info = Model.Page;
     var product = info.Product;
     var fabric = Model.Fabric;
-    // koyu sayfada koyu zeminli görsel önce gelir
-    var gallery = info.Images.OrderByDescending(i => i.Url.Contains("-dark.", StringComparison.Ordinal)).ThenBy(i => i.SortOrder).ToList();
+    // koyu sayfada koyu zeminli fotoğraf önce gelir
+    var gallery = Storefront.ForTheme(info.Images, dark: true);
     var main = gallery.FirstOrDefault();
     var detail = gallery.ElementAtOrDefault(1) ?? main;
     var sizeLabel = Model.IsAccessory ? "Seçenek" : "Beden";
+    var hasPhotos = gallery.Any(Storefront.IsPhoto);
     ViewData["Theme"] = "dark";
     ViewData["Title"] = product.Name;
-    ViewData["Description"] = $"{product.Name}: {fabric.Fabric}. {Storefront.Price(product.Price)}. Corvano İstanbul atölyesi.";
+    ViewData["Description"] = $"{product.Name}: {fabric.Fabric}. {Storefront.Price(product.Price)}. 2-4 iş gününde kargo, 14 gün iade.";
     ViewData["OgType"] = "product";
-    if (main is not null)
+    if (hasPhotos)
     {
-        ViewData["OgImage"] = main.Url;
+        ViewData["OgImage"] = gallery.First(Storefront.IsPhoto).Url;
     }
 }
 
@@ -34,12 +35,11 @@
 </nav>
 
 <div class="pdp">
-    <section class="gallery" aria-label="Görseller" data-gallery>
-        @if (main is not null)
-        {
-            <img class="gallery__main" src="@main.Url" alt="@main.Alt" width="1280" height="1600" fetchpriority="high" data-gallery-main />
-        }
-        @if (gallery.Count > 1)
+    <section class="gallery @(hasPhotos && gallery.Count > 1 ? "gallery--thumbs" : null)" aria-label="Görseller" data-gallery>
+        <div class="gallery__stage">
+            <partial name="_ProductVisual" model="@(new VisualModel(main, Model.TopCategorySlug, product.Name, Large: true, Lazy: false, CssClass: "gallery__main"))" />
+        </div>
+        @if (hasPhotos && gallery.Count > 1)
         {
             <ul class="gallery__thumbs">
                 @for (var i = 0; i < gallery.Count; i++)
@@ -55,64 +55,79 @@
         }
     </section>
 
-    <div class="pdp__flow">
-        <section class="block block--piece" aria-labelledby="piece-title" data-reveal>
-            <p class="kicker">Parça</p>
-            <h1 id="piece-title" class="pdp__title">@product.Name</h1>
-            <p class="pdp__price">@Storefront.Price(product.Price)</p>
+    <section class="buybox" aria-labelledby="piece-title">
+        <p class="kicker">@info.Category.Name</p>
+        <h1 id="piece-title" class="buybox__title">@product.Name</h1>
+        <p class="buybox__price">@Storefront.Price(product.Price)</p>
 
-            <div class="buy">
-                <fieldset class="dots dots--large">
-                    <legend class="field-label">@sizeLabel</legend>
-                    @for (var i = 0; i < info.Variants.Count; i++)
-                    {
-                        var variant = info.Variants[i];
-                        <label class="dot">
-                            <input class="dot__input" type="radio" name="variant" value="@variant.Sku" disabled="@(variant.Stock == 0)" checked="@(variant.Size == Model.RecommendedSize && variant.Stock > 0)" />
-                            <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : $", {variant.Color}")</span></span>
-                        </label>
-                    }
-                </fieldset>
-                <div class="buy__row">
-                    <label class="qty">
-                        <span class="field-label">Adet</span>
-                        <input class="qty__input" type="number" name="adet" min="1" max="10" value="1" inputmode="numeric" />
-                    </label>
-                    <button class="btn btn--cart" type="button" aria-disabled="true" aria-describedby="soon-detail">
-                        Sepete ekle
-                        <span class="soon" id="soon-detail">Yakında</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <partial name="_Seam" model="@("fabric")" />
-
-        <section class="block" aria-labelledby="fabric-title" data-reveal>
-            <h2 id="fabric-title" class="block__title">Kumaş</h2>
-            <p class="block__lead">@fabric.Fabric</p>
-            @if (fabric.Origin is not null)
+        <fieldset class="dots dots--large">
+            <legend class="field-label">@sizeLabel</legend>
+            @foreach (var variant in info.Variants)
             {
-                <p class="block__meta">Menşei: @fabric.Origin</p>
+                <label class="dot">
+                    <input class="dot__input" type="radio" name="variant" value="@variant.Sku" disabled="@(variant.Stock == 0)" checked="@(variant.Size == Model.RecommendedSize && variant.Stock > 0)" />
+                    <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : $", {variant.Color}")</span></span>
+                </label>
             }
-            @if (detail is not null)
+        </fieldset>
+        @if (!Model.IsAccessory)
+        {
+            <a class="text-link buybox__fit" href="#beden">Hangi beden bana olur?</a>
+        }
+
+        <div class="buybox__row">
+            <label class="qty">
+                <span class="field-label">Adet</span>
+                <input class="qty__input" type="number" name="adet" min="1" max="10" value="1" inputmode="numeric" />
+            </label>
+            <button class="btn btn--cart btn--cart-wide" type="button" aria-disabled="true" aria-describedby="soon-detail">
+                Sepete ekle
+                <span class="soon" id="soon-detail">Yakında</span>
+            </button>
+        </div>
+
+        <p class="buybox__shipping">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+            2-4 iş gününde kargo · 14 gün iade
+        </p>
+    </section>
+</div>
+
+<partial name="_Seam" model="@("detail")" />
+
+<div class="stories">
+    <section class="story" aria-labelledby="fabric-title" data-reveal>
+        <h2 id="fabric-title" class="story__title">Kumaş</h2>
+        <div class="story__body story__body--split">
+            <div>
+                <p class="story__lead">@fabric.Fabric</p>
+                @if (fabric.Origin is not null)
+                {
+                    <p class="story__meta">Menşei: @fabric.Origin</p>
+                }
+            </div>
+            @if (Storefront.IsPhoto(detail))
             {
                 <figure class="zoom">
-                    <img class="zoom__img" src="@Storefront.Thumb(detail.Url)" alt="@detail.Alt" width="640" height="800" loading="lazy" />
+                    <img class="zoom__img" src="@Storefront.Thumb(detail!.Url)" alt="@detail.Alt" width="640" height="800" loading="lazy" />
                     <figcaption class="zoom__caption">Dokuyu görmek için üzerine gelin</figcaption>
                 </figure>
             }
-        </section>
+        </div>
+    </section>
 
-        <section class="block" aria-labelledby="wear-title" data-reveal>
-            <h2 id="wear-title" class="block__title">Nasıl giyilir</h2>
-            <p class="block__lead">@Model.HowToWear</p>
-        </section>
+    <section class="story" aria-labelledby="wear-title" data-reveal>
+        <h2 id="wear-title" class="story__title">Nasıl giyilir</h2>
+        <div class="story__body">
+            <p class="story__lead">@Model.HowToWear</p>
+        </div>
+    </section>
 
-        @if (!Model.IsAccessory)
-        {
-            <section class="block" id="beden" aria-labelledby="size-title" data-reveal>
-                <h2 id="size-title" class="block__title">Ölçü tablosu</h2>
+    @if (!Model.IsAccessory)
+    {
+        <section class="story" id="beden" aria-labelledby="size-title" data-reveal>
+            <h2 id="size-title" class="story__title">Ölçü tablosu</h2>
+            <div class="story__body story__body--split">
                 <div class="table-scroll">
                     <table class="size-table">
                         <caption class="sr-only">Beden, boy ve kilo aralıkları</caption>
@@ -159,12 +174,30 @@
                         </p>
                     }
                 </form>
-            </section>
-        }
-
-        <section class="block" aria-labelledby="care-title" data-reveal>
-            <h2 id="care-title" class="block__title">Bakım</h2>
-            <p class="block__lead">@(fabric.Care ?? "Etiketteki talimatı izleyin.")</p>
+            </div>
         </section>
-    </div>
+    }
+
+    <section class="story" aria-labelledby="care-title" data-reveal>
+        <h2 id="care-title" class="story__title">Bakım</h2>
+        <div class="story__body">
+            <p class="story__lead">@(fabric.Care ?? "Etiketteki talimatı izleyin.")</p>
+        </div>
+    </section>
 </div>
+
+@if (Model.Similar.Count > 0)
+{
+    <section class="shelf" aria-labelledby="similar-title">
+        <div class="shelf__head">
+            <h2 id="similar-title" class="shelf__title">Benzer parçalar</h2>
+            <a class="text-link" href="/koleksiyon/@Model.TopCategorySlug">@((info.ParentCategory ?? info.Category).Name) koleksiyonu</a>
+        </div>
+        <ul class="product-grid">
+            @foreach (var card in Model.Similar)
+            {
+                <partial name="_ProductCard" model="card" />
+            }
+        </ul>
+    </section>
+}

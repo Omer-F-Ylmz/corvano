@@ -1,5 +1,15 @@
-// Vitrin davranışları: görünür olunca bir kez açılan bloklar/eğriler ve galeri küçük görselleri.
+// Vitrin davranışları: mobil menü, görünür olunca bir kez açılan bloklar/eğriler ve galeri küçük görselleri.
 (() => {
+  const toggle = document.querySelector('[data-menu-toggle]');
+  const menu = document.querySelector('[data-site-menu]');
+  if (toggle && menu) {
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      menu.classList.toggle('is-open', open);
+    });
+  }
+
   const revealables = document.querySelectorAll('[data-reveal], [data-seam]');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -18,11 +28,11 @@
   }
 
   for (const gallery of document.querySelectorAll('[data-gallery]')) {
-    const main = gallery.querySelector('[data-gallery-main]');
+    const main = gallery.querySelector('.gallery__main');
     const thumbs = gallery.querySelectorAll('[data-gallery-thumb]');
     gallery.addEventListener('click', (event) => {
       const thumb = event.target.closest('[data-gallery-thumb]');
-      if (!thumb || !main) {
+      if (!thumb || !main || main.tagName !== 'IMG') {
         return;
       }
       main.src = thumb.dataset.src;

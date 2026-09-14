@@ -1,0 +1,16 @@
+@model VisualModel
+@if (Storefront.IsPhoto(Model.Image))
+{
+    <img class="visual @Model.CssClass" src="@(Model.Large ? Model.Image!.Url : Storefront.Thumb(Model.Image!.Url))" alt="@Model.Image.Alt"
+         width="@(Model.Large ? 1280 : 640)" height="@(Model.Large ? 1600 : 800)" loading="@(Model.Lazy ? "lazy" : "eager")" />
+}
+else
+{
+    @* fotoğrafı henüz çekilmemiş parça: koyu zeminde silüet + ad *@
+    <span class="visual silhouette @Model.CssClass" role="img" aria-label="@Model.Name, fotoğraf hazırlanıyor">
+        <svg class="silhouette__shape" viewBox="0 0 400 500" width="400" height="500" aria-hidden="true" focusable="false">
+            <path d="@Storefront.Silhouette(Model.CategorySlug)" />
+        </svg>
+        <span class="silhouette__name" aria-hidden="true">@Model.Name</span>
+    </span>
+}

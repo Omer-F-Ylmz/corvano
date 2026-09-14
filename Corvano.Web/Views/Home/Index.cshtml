@@ -1,58 +1,64 @@
 @model HomeViewModel
 @{
     ViewData["Theme"] = "dark";
-    ViewData["Description"] = "Corvano: İstanbul atölyesinde sabırla dikilen gömlek, pantolon ve dış giyim. Az parça, uzun ömür.";
+    ViewData["Description"] = "Corvano: İstanbul atölyesinde dikilen gömlek, pantolon, dış giyim, triko ve aksesuar. Yeni parçalar ve kategoriler.";
 }
 
 <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__stage">
-        <img class="hero__image" src="/img/products/yaka-cicegi-gri-1-dark.webp" alt="Koyu zeminde gri güllü yaka çiçeği" width="1280" height="1600" fetchpriority="high" />
+    <img class="hero__image" src="/img/products/yaka-cicegi-gri-1-dark.webp" alt="Koyu zeminde gri güllü yaka çiçeği" width="1280" height="1600" fetchpriority="high" />
+    <div class="hero__copy">
         <h1 id="hero-title" class="hero__title">
             <span class="hero__line hero__line--a">Sabırla</span>
             <span class="hero__line hero__line--b">dikildi.</span>
         </h1>
-        <p class="hero__cue">
-            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-            Kaydırın, atölye açılsın
-        </p>
+        <a class="btn btn--primary-dark" href="/koleksiyon/tumu">
+            Koleksiyonu gör
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
     </div>
 </section>
 
-<partial name="_Seam" model="@("hero")" />
+@if (Model.Featured.Count > 0)
+{
+    <section class="shelf" aria-labelledby="featured-title" data-featured>
+        <div class="shelf__head">
+            <h2 id="featured-title" class="shelf__title">Öne çıkanlar</h2>
+            <a class="text-link" href="/koleksiyon/tumu">Tümünü gör</a>
+        </div>
+        <ul class="product-grid product-grid--home">
+            @foreach (var card in Model.Featured)
+            {
+                <partial name="_ProductCard" model="card" />
+            }
+        </ul>
+    </section>
 
-<section class="strips" aria-labelledby="strips-title">
-    <h2 id="strips-title" class="strips__title">İlk seçki</h2>
-    <ol class="strips__list">
-        @for (var i = 0; i < Model.Strips.Count; i++)
-        {
-            var strip = Model.Strips[i];
-            var primary = strip.Images.ElementAtOrDefault(0);
-            var secondary = strip.Images.ElementAtOrDefault(1);
-            <li class="strip strip--@(i + 1)">
-                <a class="strip__link" href="/koleksiyon/@strip.Category.Slug">
-                    <span class="strip__num">@((i + 1).ToString("00"))</span>
-                    <span class="strip__name">@strip.Category.Name</span>
-                    <span class="strip__go">
-                        Koleksiyona git
-                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </span>
-                    @if (primary is not null)
-                    {
-                        <span class="strip__media">
-                            <img class="strip__img" src="@Storefront.Thumb(primary.Url)" alt="@primary.Alt" width="640" height="800" loading="lazy" />
-                            @if (secondary is not null)
-                            {
-                                <img class="strip__img strip__img--alt" src="@Storefront.Thumb(secondary.Url)" alt="" width="640" height="800" loading="lazy" />
-                            }
+    <partial name="_Seam" model="@("home")" />
+}
+
+@if (Model.Categories.Count > 0)
+{
+    <section class="shelf" aria-labelledby="categories-title">
+        <div class="shelf__head">
+            <h2 id="categories-title" class="shelf__title">Kategoriler</h2>
+        </div>
+        <ul class="cat-row">
+            @foreach (var item in Model.Categories)
+            {
+                var sample = item.Sample;
+                <li class="cat-card">
+                    <a class="cat-card__link" href="/koleksiyon/@item.Category.Slug">
+                        <span class="cat-card__media">
+                            <partial name="_ProductVisual" model="@(new VisualModel(sample is null ? null : Storefront.ForTheme(sample.Images, dark: true).FirstOrDefault(), item.Category.Slug, item.Category.Name))" />
                         </span>
-                    }
-                </a>
-            </li>
-        }
-    </ol>
-</section>
-
-<partial name="_Seam" model="@("band")" />
+                        <span class="cat-card__name">@item.Category.Name</span>
+                        <span class="cat-card__count">@item.ProductCount parça</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </section>
+}
 
 <section class="band" aria-label="Üretim yeri">
     <p class="band__text">İstanbul'da dikildi</p>
