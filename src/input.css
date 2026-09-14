@@ -830,7 +830,8 @@
   /* Vitrin — "Karanlık Atölye", mağaza düzeni.
      Marka: ana #1f3a2e / #14261e · nötr #f4f1ea · vurgu #c8802d (koyuda metin için #dea664) · Fraunces + Manrope · 8px ölçek.
      Tip ölçeği: 14 · 16 · 20 · 32 · display (48/64/80; hero 64/96/128).
-     Kuzgun imzası: yönlü grain + altın eğri (ana sayfa bölüm geçişi, ürün detay galeri sonrası). Başka motif yok. */
+     Kuzgun imzası: altın eğri (ana sayfa bölüm geçişi, ürün detay galeri sonrası). Başka motif yok.
+     Zemin: düz renk üzerinde tek radial vignette + yönsüz film grain. */
 
   .theme-dark {
     --bg: #14261e;
@@ -841,9 +842,8 @@
     --line: rgb(143 174 156 / 0.28);
     --accent-ink: #dea664;
     --focus: #dea664;
-    --glow-a: rgb(47 86 68 / 0.55);
-    --glow-b: rgb(200 128 45 / 0.12);
-    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000' preserveAspectRatio='none'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9 0.035' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.95 0 0 0 0 0.92 0 0 0 1.3 -0.55'/%3E%3C/filter%3E%3ClinearGradient id='f' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1600' height='1000' fill='url(%23f)'/%3E%3C/mask%3E%3Crect width='1600' height='1000' filter='url(%23g)' mask='url(%23m)'/%3E%3C/svg%3E");
+    /* stüdyo zemini: merkez hafif açık, kenarlar koyu (#14261e'den türetilmiş) */
+    --vignette: radial-gradient(ellipse 90% 75% at 50% 35%, #1a3128 0%, #14261e 55%, #0f1e17 100%);
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.24), 0 16px 32px -16px rgb(0 0 0 / 0.48), 0 32px 64px -32px rgb(8 16 12 / 0.56);
     color-scheme: dark;
   }
@@ -857,9 +857,7 @@
     --line: #e6e1d6;
     --accent-ink: #8a5416;
     --focus: #8a5416;
-    --glow-a: rgb(31 58 46 / 0.12);
-    --glow-b: rgb(200 128 45 / 0.14);
-    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000' preserveAspectRatio='none'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9 0.035' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.15 0 0 0 0 0.12 0 0 0 1.3 -0.55'/%3E%3C/filter%3E%3ClinearGradient id='f' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1600' height='1000' fill='url(%23f)'/%3E%3C/mask%3E%3Crect width='1600' height='1000' filter='url(%23g)' mask='url(%23m)'/%3E%3C/svg%3E");
+    --vignette: radial-gradient(ellipse 90% 75% at 50% 35%, #f8f6f0 0%, #f4f1ea 55%, #ebe6dc 100%);
     --shadow-card: 0 1px 2px rgb(31 58 46 / 0.06), 0 16px 32px -16px rgb(31 58 46 / 0.18), 0 32px 64px -32px rgb(31 58 46 / 0.22);
   }
 
@@ -867,26 +865,23 @@
   html.theme-light {
     color: var(--ink);
     background-color: var(--bg);
-    background-image:
-      radial-gradient(70% 55% at 0% 0%, var(--glow-a) 0%, transparent 70%),
-      radial-gradient(50% 45% at 100% 100%, var(--glow-b) 0%, transparent 70%);
-    background-attachment: fixed;
+    background-image: var(--vignette);
   }
 
   .storefront {
     position: relative;
   }
 
-  /* yönlü grain: dikey lif (feTurbulence x/y frekans farkı), çapraz maske ile soluklaşır */
+  /* yönsüz film grain: izotropik fractalNoise, 240px karo (stitchTiles ile dikişsiz), opaklık 0.04 */
   .storefront::before {
     content: "";
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: var(--grain);
-    background-size: 100% 100%;
-    opacity: 0.14;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 240px 240px;
+    opacity: 0.04;
   }
 
   .storefront h1,
@@ -1126,24 +1121,27 @@
     overflow: hidden;
   }
 
-  .hero__image {
+  /* görsel ve üstündeki geçiş katmanı aynı kutuyu paylaşır; zemin boyunca bant/sınır oluşmaz */
+  .hero__image,
+  .hero::after {
     position: absolute;
-    top: 0;
     right: 0;
-    height: 100%;
+    bottom: 0;
+    height: 48%;
     width: auto;
     max-width: 100%;
     aspect-ratio: 4 / 5;
+    mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  }
+
+  .hero__image {
     object-fit: cover;
     opacity: 0.55;
-    mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
   }
 
   /* görsel üstü koyu geçiş + marka rengi çarpma katmanı */
   .hero::after {
     content: "";
-    position: absolute;
-    inset: 0;
     background:
       linear-gradient(to top, rgb(0 0 0 / 0.6), transparent 40%),
       rgb(31 58 46 / 0.3);
@@ -2114,6 +2112,14 @@
       font-size: 96px;
     }
 
+    .hero__image,
+    .hero::after {
+      top: 16%;
+      bottom: auto;
+      right: 32px;
+      height: 68%;
+    }
+
     .product-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 48px 24px;
@@ -2186,6 +2192,14 @@
 
     .hero__title {
       font-size: 128px;
+    }
+
+    /* ölçek küçük, merkeze yakın: metin bloğuyla arasında nefes payı */
+    .hero__image,
+    .hero::after {
+      top: 12%;
+      right: 18%;
+      height: 76%;
     }
 
     .product-grid,
