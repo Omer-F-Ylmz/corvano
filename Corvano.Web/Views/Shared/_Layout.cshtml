@@ -1,27 +1,54 @@
+@{
+    var theme = ViewData["Theme"] as string ?? "dark";
+    var title = ViewData["Title"] is string t ? $"{t} · Corvano" : "Corvano — İstanbul'da dikilen erkek giyim";
+    var description = ViewData["Description"] as string ?? "Corvano: İstanbul atölyesinde dikilen gömlek, pantolon, dış giyim, triko ve aksesuar.";
+    var origin = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var ogImage = ViewData["OgImage"] as string ?? "/img/products/yaka-cicegi-gri-1-dark.webp";
+    var current = Context.Request.Path.Value ?? "/";
+    (string Slug, string Name)[] nav = [("gomlek", "Gömlek"), ("pantolon", "Pantolon"), ("dis-giyim", "Dış Giyim"), ("triko", "Triko"), ("aksesuar", "Aksesuar")];
+}
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="theme-@theme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@(ViewData["Title"] is string t ? $"{t} · Corvano" : "Corvano")</title>
-    <meta name="description" content="Corvano — erkek giyim. Yakında." />
+    <title>@title</title>
+    <meta name="description" content="@description" />
+    <link rel="canonical" href="@(origin + current)" />
+    <meta property="og:site_name" content="Corvano" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:type" content="@(ViewData["OgType"] as string ?? "website")" />
+    <meta property="og:title" content="@title" />
+    <meta property="og:description" content="@description" />
+    <meta property="og:url" content="@(origin + current)" />
+    <meta property="og:image" content="@(ogImage.StartsWith('/') ? origin + ogImage : ogImage)" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;600&display=swap" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script>document.documentElement.classList.add('js');</script>
 </head>
-<body class="surface-base">
+<body class="storefront">
+    <a class="skip-link" href="#main">İçeriğe geç</a>
     <header class="site-header">
         <a class="wordmark" href="/" aria-label="Corvano ana sayfa">Corvano</a>
-        <span class="site-header__meta">Erkek giyim</span>
+        <nav class="site-nav" aria-label="Koleksiyonlar">
+            <ul class="site-nav__list">
+                @foreach (var (slug, name) in nav)
+                {
+                    var href = $"/koleksiyon/{slug}";
+                    <li><a class="site-nav__link" href="@href" aria-current="@(current.StartsWith(href) ? "page" : null)">@name</a></li>
+                }
+            </ul>
+        </nav>
     </header>
     <main id="main">
         @RenderBody()
     </main>
     <footer class="site-footer">
-        <span>Corvano, @DateTime.UtcNow.Year</span>
+        <p class="site-footer__line">Corvano · İstanbul atölyesi, @DateTime.UtcNow.Year</p>
         <a class="footer-link" href="mailto:merhaba@corvano.com">merhaba@corvano.com</a>
     </footer>
-    @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </body>
 </html>

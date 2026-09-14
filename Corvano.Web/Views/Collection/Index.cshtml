@@ -1,0 +1,77 @@
+@model CollectionPageDto
+@using Corvano.Business.Utilities
+@{
+    var heading = Model.ActiveSubcategory?.Name ?? Model.Category.Name;
+    ViewData["Theme"] = "light";
+    ViewData["Title"] = heading;
+    ViewData["Description"] = $"Corvano {heading.ToLower(new System.Globalization.CultureInfo("tr-TR"))} koleksiyonu: {Model.Products.Count} parça, kumaşı ve dikimi etiketinde.";
+    var ogImage = Model.Products.SelectMany(p => p.Images).OrderBy(i => i.SortOrder).FirstOrDefault();
+    if (ogImage is not null)
+    {
+        ViewData["OgImage"] = ogImage.Url;
+    }
+}
+
+<section class="collection-head" aria-labelledby="collection-title">
+    <p class="kicker">Koleksiyon</p>
+    <h1 id="collection-title" class="collection-head__title">@heading</h1>
+    <p class="collection-head__count">@Model.Products.Count parça</p>
+
+    @if (Model.Subcategories.Count > 0)
+    {
+        <nav class="tabs" aria-label="@Model.Category.Name alt kategorileri">
+            <ul class="tabs__list">
+                <li><a class="tabs__link" href="/koleksiyon/@Model.Category.Slug" aria-current="@(Model.ActiveSubcategory is null ? "page" : null)">Tümü</a></li>
+                @foreach (var sub in Model.Subcategories)
+                {
+                    <li><a class="tabs__link" href="/koleksiyon/@Model.Category.Slug?alt=@sub.Slug" aria-current="@(Model.ActiveSubcategory?.Id == sub.Id ? "page" : null)">@sub.Name</a></li>
+                }
+            </ul>
+        </nav>
+    }
+</section>
+
+<partial name="_Seam" model="@("collection")" />
+
+<section class="collection" aria-label="Ürünler">
+    @if (Model.Products.Count == 0)
+    {
+        <p class="collection__empty">Bu bölümde yayında parça yok.</p>
+    }
+    <ul class="collection__grid">
+        @foreach (var card in Model.Products)
+        {
+            var product = card.Product;
+            var image = Storefront.Primary(card.Images);
+            var fabric = ProductDescription.Parse(product.Description);
+            var url = $"/urun/{product.Slug}";
+            <li class="card" data-reveal>
+                <a class="card__media" href="@url" tabindex="-1" aria-hidden="true">
+                    @if (image is not null)
+                    {
+                        <img src="@Storefront.Thumb(image.Url)" alt="@image.Alt" width="640" height="800" loading="lazy" />
+                    }
+                </a>
+                <div class="card__body">
+                    <h2 class="card__name"><a class="card__link" href="@url">@product.Name</a></h2>
+                    <p class="card__price">@Storefront.Price(product.Price)</p>
+                    <p class="card__fabric">@fabric.Fabric</p>
+                    <fieldset class="dots">
+                        <legend class="sr-only">@product.Name için seçenek</legend>
+                        @foreach (var variant in card.Variants)
+                        {
+                            <label class="dot">
+                                <input class="dot__input" type="radio" name="size-@product.Id" value="@variant.Sku" disabled="@(variant.Stock == 0)" />
+                                <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : "")</span></span>
+                            </label>
+                        }
+                    </fieldset>
+                    <button class="btn btn--cart" type="button" aria-disabled="true" aria-describedby="soon-@product.Id">
+                        Sepete ekle
+                        <span class="soon" id="soon-@product.Id">Yakında</span>
+                    </button>
+                </div>
+            </li>
+        }
+    </ul>
+</section>

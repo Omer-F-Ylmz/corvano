@@ -22,5 +22,7 @@ public class AutofacBusinessModule : Module
         builder.RegisterType<CategoryManager>().As<ICategoryService>().InstancePerLifetimeScope();
         builder.RegisterType<ProductManager>().As<IProductService>().InstancePerLifetimeScope();
         builder.RegisterType<AdminAuthManager>().As<IAdminAuthService>().InstancePerLifetimeScope();
+        builder.RegisterType<CatalogManager>().As<ICatalogService>().InstancePerLifetimeScope();
+        builder.RegisterType<CatalogSeedManager>().As<ICatalogSeedService>().InstancePerLifetimeScope();
     }
 }

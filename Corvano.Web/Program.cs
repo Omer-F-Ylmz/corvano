@@ -81,6 +81,10 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 await SeedFirstAdminAsync(app);
+if (app.Environment.IsDevelopment() && app.Configuration.GetValue("Catalog:SeedDemo", true))
+{
+    await SeedCatalogAsync(app);
+}
 
 app.Run();
 
@@ -101,6 +105,13 @@ static async Task SeedFirstAdminAsync(WebApplication app)
     var authService = scope.ServiceProvider.GetRequiredService<IAdminAuthService>();
     var (_, result) = await authService.EnsureSeedAsync(email, password);
     logger.LogInformation("Yönetici tohumlama: {Message}", result.Message);
+}
+
+static async Task SeedCatalogAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var (_, result) = await scope.ServiceProvider.GetRequiredService<ICatalogSeedService>().EnsureSeedAsync();
+    scope.ServiceProvider.GetRequiredService<ILogger<Program>>().LogInformation("Katalog tohumlama: {Message}", result.Message);
 }
 
 /// <summary>Yalnız yönetici çerezine sahip isteklerin /admin altına girmesini sağlar.</summary>

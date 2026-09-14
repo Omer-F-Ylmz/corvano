@@ -1,0 +1,12 @@
+@model string
+@* Kuzgun imzası: bölüm geçişinde ince altın eğri. Maske dikdörtgeni transform: scaleX ile açılır, çizgi soldan sağa çizilmiş görünür. *@
+<div class="seam" aria-hidden="true" data-seam>
+    <svg class="seam__svg" viewBox="0 0 1440 48" preserveAspectRatio="none" width="1440" height="48" focusable="false">
+        <defs>
+            <mask id="seam-@Model" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="48">
+                <rect class="seam__reveal" x="0" y="0" width="1440" height="48" fill="#fff" />
+            </mask>
+        </defs>
+        <path class="seam__path" mask="url(#seam-@Model)" d="M0 34 C 240 34, 360 10, 620 18 S 1060 44, 1440 14" vector-effect="non-scaling-stroke" />
+    </svg>
+</div>

@@ -1,24 +1,60 @@
+@model HomeViewModel
 @{
-    ViewData["Title"] = "Yakında";
+    ViewData["Theme"] = "dark";
+    ViewData["Description"] = "Corvano: İstanbul atölyesinde sabırla dikilen gömlek, pantolon ve dış giyim. Az parça, uzun ömür.";
 }
 
 <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__copy">
-        <p class="eyebrow">Yakında açılıyor</p>
-        <h1 id="hero-title" class="display-1">Az parça, doğru parça.</h1>
-        <p class="lead">Corvano, erkek gardırobunu kalabalıktan arındıran bir seçki. Sezonluk hevesler yerine yıllarca giyilecek temel parçalar.</p>
-        <a class="btn btn--primary" href="mailto:merhaba@corvano.com?subject=Corvano%20a%C3%A7%C4%B1l%C4%B1%C5%9F%20haberi">
-            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            <span>Açılışta haber ver</span>
-        </a>
+    <div class="hero__stage">
+        <img class="hero__image" src="/img/products/yaka-cicegi-gri-1-dark.webp" alt="Koyu zeminde gri güllü yaka çiçeği" width="1280" height="1600" fetchpriority="high" />
+        <h1 id="hero-title" class="hero__title">
+            <span class="hero__line hero__line--a">Sabırla</span>
+            <span class="hero__line hero__line--b">dikildi.</span>
+        </h1>
+        <p class="hero__cue">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+            Kaydırın, atölye açılsın
+        </p>
     </div>
-    <aside class="hero__panel surface-elevated" aria-label="İlk seçki">
-        <p class="panel__label">İlk seçki</p>
-        <ol class="panel__list">
-            <li><span class="panel__num">01</span><span>Gömlek</span></li>
-            <li><span class="panel__num">02</span><span>Pantolon</span></li>
-            <li><span class="panel__num">03</span><span>Dış giyim</span></li>
-            <li><span class="panel__num">04</span><span>Aksesuar</span></li>
-        </ol>
-    </aside>
+</section>
+
+<partial name="_Seam" model="@("hero")" />
+
+<section class="strips" aria-labelledby="strips-title">
+    <h2 id="strips-title" class="strips__title">İlk seçki</h2>
+    <ol class="strips__list">
+        @for (var i = 0; i < Model.Strips.Count; i++)
+        {
+            var strip = Model.Strips[i];
+            var primary = strip.Images.ElementAtOrDefault(0);
+            var secondary = strip.Images.ElementAtOrDefault(1);
+            <li class="strip strip--@(i + 1)">
+                <a class="strip__link" href="/koleksiyon/@strip.Category.Slug">
+                    <span class="strip__num">@((i + 1).ToString("00"))</span>
+                    <span class="strip__name">@strip.Category.Name</span>
+                    <span class="strip__go">
+                        Koleksiyona git
+                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                    @if (primary is not null)
+                    {
+                        <span class="strip__media">
+                            <img class="strip__img" src="@Storefront.Thumb(primary.Url)" alt="@primary.Alt" width="640" height="800" loading="lazy" />
+                            @if (secondary is not null)
+                            {
+                                <img class="strip__img strip__img--alt" src="@Storefront.Thumb(secondary.Url)" alt="" width="640" height="800" loading="lazy" />
+                            }
+                        </span>
+                    }
+                </a>
+            </li>
+        }
+    </ol>
+</section>
+
+<partial name="_Seam" model="@("band")" />
+
+<section class="band" aria-label="Üretim yeri">
+    <p class="band__text">İstanbul'da dikildi</p>
+    <p class="band__note">Kesimden son ütüye kadar tek atölyede.</p>
 </section>

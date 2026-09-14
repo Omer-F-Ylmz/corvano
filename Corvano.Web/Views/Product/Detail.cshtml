@@ -1,0 +1,170 @@
+@model ProductViewModel
+@using Corvano.Business.Utilities
+@{
+    var info = Model.Page;
+    var product = info.Product;
+    var fabric = Model.Fabric;
+    // koyu sayfada koyu zeminli görsel önce gelir
+    var gallery = info.Images.OrderByDescending(i => i.Url.Contains("-dark.", StringComparison.Ordinal)).ThenBy(i => i.SortOrder).ToList();
+    var main = gallery.FirstOrDefault();
+    var detail = gallery.ElementAtOrDefault(1) ?? main;
+    var sizeLabel = Model.IsAccessory ? "Seçenek" : "Beden";
+    ViewData["Theme"] = "dark";
+    ViewData["Title"] = product.Name;
+    ViewData["Description"] = $"{product.Name}: {fabric.Fabric}. {Storefront.Price(product.Price)}. Corvano İstanbul atölyesi.";
+    ViewData["OgType"] = "product";
+    if (main is not null)
+    {
+        ViewData["OgImage"] = main.Url;
+    }
+}
+
+<nav class="crumbs" aria-label="Konum">
+    <ol class="crumbs__list">
+        @if (info.ParentCategory is { } parent)
+        {
+            <li><a class="crumbs__link" href="/koleksiyon/@parent.Slug">@parent.Name</a></li>
+            <li><a class="crumbs__link" href="/koleksiyon/@parent.Slug?alt=@info.Category.Slug">@info.Category.Name</a></li>
+        }
+        else
+        {
+            <li><a class="crumbs__link" href="/koleksiyon/@info.Category.Slug">@info.Category.Name</a></li>
+        }
+    </ol>
+</nav>
+
+<div class="pdp">
+    <section class="gallery" aria-label="Görseller" data-gallery>
+        @if (main is not null)
+        {
+            <img class="gallery__main" src="@main.Url" alt="@main.Alt" width="1280" height="1600" fetchpriority="high" data-gallery-main />
+        }
+        @if (gallery.Count > 1)
+        {
+            <ul class="gallery__thumbs">
+                @for (var i = 0; i < gallery.Count; i++)
+                {
+                    var image = gallery[i];
+                    <li>
+                        <button class="gallery__thumb" type="button" aria-pressed="@(i == 0 ? "true" : "false")" aria-label="Görsel @(i + 1): @image.Alt" data-gallery-thumb data-src="@image.Url" data-alt="@image.Alt">
+                            <img src="@Storefront.Thumb(image.Url)" alt="" width="640" height="800" loading="lazy" />
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <div class="pdp__flow">
+        <section class="block block--piece" aria-labelledby="piece-title" data-reveal>
+            <p class="kicker">Parça</p>
+            <h1 id="piece-title" class="pdp__title">@product.Name</h1>
+            <p class="pdp__price">@Storefront.Price(product.Price)</p>
+
+            <div class="buy">
+                <fieldset class="dots dots--large">
+                    <legend class="field-label">@sizeLabel</legend>
+                    @for (var i = 0; i < info.Variants.Count; i++)
+                    {
+                        var variant = info.Variants[i];
+                        <label class="dot">
+                            <input class="dot__input" type="radio" name="variant" value="@variant.Sku" disabled="@(variant.Stock == 0)" checked="@(variant.Size == Model.RecommendedSize && variant.Stock > 0)" />
+                            <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : $", {variant.Color}")</span></span>
+                        </label>
+                    }
+                </fieldset>
+                <div class="buy__row">
+                    <label class="qty">
+                        <span class="field-label">Adet</span>
+                        <input class="qty__input" type="number" name="adet" min="1" max="10" value="1" inputmode="numeric" />
+                    </label>
+                    <button class="btn btn--cart" type="button" aria-disabled="true" aria-describedby="soon-detail">
+                        Sepete ekle
+                        <span class="soon" id="soon-detail">Yakında</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <partial name="_Seam" model="@("fabric")" />
+
+        <section class="block" aria-labelledby="fabric-title" data-reveal>
+            <h2 id="fabric-title" class="block__title">Kumaş</h2>
+            <p class="block__lead">@fabric.Fabric</p>
+            @if (fabric.Origin is not null)
+            {
+                <p class="block__meta">Menşei: @fabric.Origin</p>
+            }
+            @if (detail is not null)
+            {
+                <figure class="zoom">
+                    <img class="zoom__img" src="@Storefront.Thumb(detail.Url)" alt="@detail.Alt" width="640" height="800" loading="lazy" />
+                    <figcaption class="zoom__caption">Dokuyu görmek için üzerine gelin</figcaption>
+                </figure>
+            }
+        </section>
+
+        <section class="block" aria-labelledby="wear-title" data-reveal>
+            <h2 id="wear-title" class="block__title">Nasıl giyilir</h2>
+            <p class="block__lead">@Model.HowToWear</p>
+        </section>
+
+        @if (!Model.IsAccessory)
+        {
+            <section class="block" id="beden" aria-labelledby="size-title" data-reveal>
+                <h2 id="size-title" class="block__title">Ölçü tablosu</h2>
+                <div class="table-scroll">
+                    <table class="size-table">
+                        <caption class="sr-only">Beden, boy ve kilo aralıkları</caption>
+                        <thead>
+                            <tr><th scope="col">Beden</th><th scope="col">Boy (cm)</th><th scope="col">Kilo (kg)</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in SizeAdvisor.Table)
+                            {
+                                <tr class="@(row.Size == Model.RecommendedSize ? "is-match" : null)">
+                                    <th scope="row">@row.Size</th>
+                                    <td>@row.MinHeightCm–@row.MaxHeightCm</td>
+                                    <td>@row.MinWeightKg–@row.MaxWeightKg</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <form class="fit" method="get" action="/urun/@product.Slug#beden">
+                    <h3 class="fit__title">Hangi beden?</h3>
+                    <div class="fit__row">
+                        <label class="fit__field">
+                            <span class="field-label">Boy (cm)</span>
+                            <input class="fit__input" type="number" name="boy" min="140" max="220" value="@Model.HeightCm" inputmode="numeric" required />
+                        </label>
+                        <label class="fit__field">
+                            <span class="field-label">Kilo (kg)</span>
+                            <input class="fit__input" type="number" name="kilo" min="40" max="160" value="@Model.WeightKg" inputmode="numeric" required />
+                        </label>
+                        <button class="btn btn--ghost-light" type="submit">Bedeni bul</button>
+                    </div>
+                    @if (Model.HeightCm is not null && Model.WeightKg is not null)
+                    {
+                        <p class="fit__result" role="status">
+                            @if (Model.RecommendedSize is { } size)
+                            {
+                                <text>Önerimiz: <strong>@size</strong>. İki beden arasındaysanız büyük olanı seçin.</text>
+                            }
+                            else
+                            {
+                                <text>Bu ölçüler tablonun dışında; atölyeye yazın, ölçünüze göre bakalım.</text>
+                            }
+                        </p>
+                    }
+                </form>
+            </section>
+        }
+
+        <section class="block" aria-labelledby="care-title" data-reveal>
+            <h2 id="care-title" class="block__title">Bakım</h2>
+            <p class="block__lead">@(fabric.Care ?? "Etiketteki talimatı izleyin.")</p>
+        </section>
+    </div>
+</div>
