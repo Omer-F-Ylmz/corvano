@@ -21,6 +21,8 @@ public static class TestDb
     {
         await using var context = NewContext();
         await context.Database.MigrateAsync();
+        await context.CartItems.ExecuteDeleteAsync();
+        await context.Carts.ExecuteDeleteAsync();
         await context.ProductImages.ExecuteDeleteAsync();
         await context.ProductVariants.ExecuteDeleteAsync();
         await context.Products.ExecuteDeleteAsync();

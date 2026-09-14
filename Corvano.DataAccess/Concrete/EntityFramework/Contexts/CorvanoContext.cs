@@ -14,6 +14,8 @@ public class CorvanoContext : DbContext
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -86,6 +88,34 @@ public class CorvanoContext : DbContext
             e.Property(a => a.FailedAttempts).HasColumnName("failed_attempts");
             e.Property(a => a.LockedUntil).HasColumnName("locked_until");
             e.HasIndex(a => a.Email).IsUnique().HasDatabaseName("ux_admin_user_email");
+        });
+
+        modelBuilder.Entity<Cart>(e =>
+        {
+            e.ToTable("cart");
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Id).HasColumnName("id");
+            e.Property(c => c.CartKey).HasColumnName("cart_key");
+            e.Property(c => c.CustomerId).HasColumnName("customer_id");
+            e.Property(c => c.CreatedAt).HasColumnName("created_at");
+            e.Property(c => c.UpdatedAt).HasColumnName("updated_at");
+            e.HasIndex(c => c.CartKey).IsUnique().HasDatabaseName("ux_cart_cart_key");
+        });
+
+        modelBuilder.Entity<CartItem>(e =>
+        {
+            e.ToTable("cart_item", t => t.HasCheckConstraint("ck_cart_item_quantity", "[quantity] >= 1"));
+            e.HasKey(i => i.Id);
+            e.Property(i => i.Id).HasColumnName("id");
+            e.Property(i => i.CartId).HasColumnName("cart_id");
+            e.Property(i => i.ProductVariantId).HasColumnName("product_variant_id");
+            e.Property(i => i.Quantity).HasColumnName("quantity");
+            e.Property(i => i.UnitPrice).HasColumnName("unit_price").HasPrecision(18, 2);
+            e.Property(i => i.AddedAt).HasColumnName("added_at");
+            e.HasIndex(i => new { i.CartId, i.ProductVariantId }).IsUnique().HasDatabaseName("ux_cart_item_cart_variant");
+            e.HasOne<Cart>().WithMany().HasForeignKey(i => i.CartId).OnDelete(DeleteBehavior.Cascade);
+            // varyant silinirse sepet satırı da gider: FK şartı silinmiş varyantın satırda kalmasına izin vermez
+            e.HasOne<ProductVariant>().WithMany().HasForeignKey(i => i.ProductVariantId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
