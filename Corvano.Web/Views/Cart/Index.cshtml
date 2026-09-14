@@ -1,0 +1,94 @@
+@model CartPageViewModel
+@{
+    var cart = Model.Cart;
+    ViewData["Title"] = "Sepet";
+    ViewData["Description"] = "Corvano sepetiniz: seçtiğiniz parçalar, beden ve adetleri, kargo ve toplam.";
+    var remaining = Model.Options.FreeShippingThreshold - cart.Subtotal;
+}
+
+<section class="cart-page" aria-labelledby="cart-title">
+    <div class="cart-head">
+        <p class="kicker">Sepet</p>
+        <h1 id="cart-title" class="cart-head__title">Sepetiniz</h1>
+        @if (!cart.IsEmpty)
+        {
+            <p class="cart-head__count">@cart.ItemCount parça</p>
+        }
+    </div>
+
+    @if (Model.Message is not null)
+    {
+        <p class="notice @(Model.IsError ? "notice--error" : null)" role="@(Model.IsError ? "alert" : "status")">@Model.Message</p>
+    }
+
+    @if (cart.IsEmpty)
+    {
+        <div class="empty-card">
+            <p class="empty-card__title">Sepetiniz boş</p>
+            <p class="empty-card__text">Beğendiğiniz parçanın bedenini seçip sepete ekleyin; burada toplamını görürsünüz.</p>
+            <a class="btn btn--primary-dark" href="/koleksiyon/tumu">Koleksiyona göz at</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-layout">
+            <ul class="cart-lines" aria-label="Sepetteki parçalar">
+                @foreach (var line in cart.Lines)
+                {
+                    <li class="cart-line @(line.IsAvailable ? null : "cart-line--unavailable")" data-cart-line="@line.ItemId">
+                        <a class="cart-line__media" href="/urun/@line.ProductSlug" tabindex="-1" aria-hidden="true">
+                            <partial name="_ProductVisual" model="@(new VisualModel(line.Image, line.CategorySlug, line.ProductName))" />
+                        </a>
+                        <div class="cart-line__info">
+                            <h2 class="cart-line__name"><a class="card__link" href="/urun/@line.ProductSlug">@line.ProductName</a></h2>
+                            <p class="cart-line__meta">Beden: @line.Size · Birim @Storefront.Price(line.UnitPrice)</p>
+                            @if (line.IsLowStock)
+                            {
+                                <p class="badge">Son @line.Stock adet</p>
+                            }
+                            @if (line.Warning is not null)
+                            {
+                                <p class="cart-line__warning" role="status">@line.Warning</p>
+                            }
+                        </div>
+                        <div class="cart-line__controls">
+                            <form class="stepper" method="post" action="/sepet/guncelle" asp-antiforgery="true">
+                                <input type="hidden" name="itemId" value="@line.ItemId" />
+                                <button class="stepper__btn" type="submit" name="quantity" value="@(line.Quantity - 1)" aria-label="@line.ProductName adedini azalt" disabled="@(!line.IsAvailable)">
+                                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+                                </button>
+                                <output class="stepper__value" aria-label="Adet">@line.Quantity</output>
+                                <button class="stepper__btn" type="submit" name="quantity" value="@(line.Quantity + 1)" aria-label="@line.ProductName adedini artır" disabled="@(!line.IsAvailable || line.Quantity >= line.Stock)">
+                                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                </button>
+                            </form>
+                            <p class="cart-line__total">@Storefront.Price(line.LineTotal)</p>
+                            <form method="post" action="/sepet/sil" asp-antiforgery="true">
+                                <input type="hidden" name="itemId" value="@line.ItemId" />
+                                <button class="text-button" type="submit">Kaldır<span class="sr-only">: @line.ProductName</span></button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
+
+            <aside class="cart-summary" aria-labelledby="summary-title">
+                <h2 id="summary-title" class="cart-summary__title">Özet</h2>
+                <dl class="cart-summary__rows">
+                    <div><dt>Ara toplam</dt><dd>@Storefront.Price(cart.Subtotal)</dd></div>
+                    <div><dt>Kargo</dt><dd>@(cart.Shipping == 0m ? "Ücretsiz" : Storefront.Price(cart.Shipping))</dd></div>
+                    <div class="cart-summary__total"><dt>Genel toplam</dt><dd data-cart-total>@Storefront.Price(cart.Total)</dd></div>
+                </dl>
+                <p class="cart-summary__note">
+                    @(remaining > 0m
+                        ? $"{Storefront.Price(remaining)} daha ekleyin, kargo ücretsiz."
+                        : $"{Storefront.Price(Model.Options.FreeShippingThreshold)} üzeri siparişte kargo ücretsiz.")
+                </p>
+                <button class="btn btn--primary-light btn--block" type="button" aria-disabled="true" aria-describedby="checkout-soon">
+                    Ödemeye geç
+                    <span class="soon" id="checkout-soon">Yakında</span>
+                </button>
+            </aside>
+        </div>
+    }
+</section>

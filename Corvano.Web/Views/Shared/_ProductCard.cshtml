@@ -15,25 +15,25 @@
             <partial name="_ProductVisual" model="@(new VisualModel(secondary, Model.CategorySlug, product.Name, CssClass: "visual--alt"))" />
         }
     </a>
-    <div class="card__body">
+    <form class="card__body" method="post" action="/sepet/ekle" asp-antiforgery="true" data-add-to-cart>
         <h3 class="card__name"><a class="card__link" href="@url">@product.Name</a></h3>
         <p class="card__price">@Storefront.Price(product.Price)</p>
         @if (Model.Variants.Count > 0)
         {
-            <fieldset class="dots">
+            <fieldset class="dots" aria-describedby="size-error-@product.Id">
                 <legend class="sr-only">@product.Name için beden ya da seçenek</legend>
                 @foreach (var variant in Model.Variants)
                 {
                     <label class="dot">
-                        <input class="dot__input" type="radio" name="size-@product.Id" value="@variant.Sku" disabled="@(variant.Stock == 0)" />
+                        <input class="dot__input" type="radio" name="variantId" value="@variant.Id" disabled="@(variant.Stock == 0)" />
                         <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : "")</span></span>
                     </label>
                 }
             </fieldset>
         }
-        <button class="btn btn--cart" type="button" aria-disabled="true" aria-describedby="soon-@product.Id">
-            Sepete ekle
-            <span class="soon" id="soon-@product.Id">Yakında</span>
-        </button>
-    </div>
+        <p class="form-error" id="size-error-@product.Id" role="alert" hidden data-form-error></p>
+        <input type="hidden" name="quantity" value="1" />
+        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+        <button class="btn btn--cart" type="submit">Sepete ekle</button>
+    </form>
 </li>

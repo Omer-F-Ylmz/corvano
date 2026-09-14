@@ -60,31 +60,32 @@
         <h1 id="piece-title" class="buybox__title">@product.Name</h1>
         <p class="buybox__price">@Storefront.Price(product.Price)</p>
 
-        <fieldset class="dots dots--large">
-            <legend class="field-label">@sizeLabel</legend>
-            @foreach (var variant in info.Variants)
+        <form method="post" action="/sepet/ekle" asp-antiforgery="true" data-add-to-cart>
+            <fieldset class="dots dots--large" aria-describedby="size-error-detail">
+                <legend class="field-label">@sizeLabel</legend>
+                @foreach (var variant in info.Variants)
+                {
+                    <label class="dot">
+                        <input class="dot__input" type="radio" name="variantId" value="@variant.Id" disabled="@(variant.Stock == 0)" checked="@(variant.Size == Model.RecommendedSize && variant.Stock > 0)" />
+                        <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : $", {variant.Color}")</span></span>
+                    </label>
+                }
+            </fieldset>
+            <p class="form-error" id="size-error-detail" role="alert" hidden data-form-error></p>
+            @if (!Model.IsAccessory)
             {
-                <label class="dot">
-                    <input class="dot__input" type="radio" name="variant" value="@variant.Sku" disabled="@(variant.Stock == 0)" checked="@(variant.Size == Model.RecommendedSize && variant.Stock > 0)" />
-                    <span class="dot__face">@variant.Size<span class="sr-only">@(variant.Stock == 0 ? ", tükendi" : $", {variant.Color}")</span></span>
-                </label>
+                <a class="text-link buybox__fit" href="#beden">Hangi beden bana olur?</a>
             }
-        </fieldset>
-        @if (!Model.IsAccessory)
-        {
-            <a class="text-link buybox__fit" href="#beden">Hangi beden bana olur?</a>
-        }
 
-        <div class="buybox__row">
-            <label class="qty">
-                <span class="field-label">Adet</span>
-                <input class="qty__input" type="number" name="adet" min="1" max="10" value="1" inputmode="numeric" />
-            </label>
-            <button class="btn btn--cart btn--cart-wide" type="button" aria-disabled="true" aria-describedby="soon-detail">
-                Sepete ekle
-                <span class="soon" id="soon-detail">Yakında</span>
-            </button>
-        </div>
+            <input type="hidden" name="returnUrl" value="/urun/@product.Slug" />
+            <div class="buybox__row">
+                <label class="qty">
+                    <span class="field-label">Adet</span>
+                    <input class="qty__input" type="number" name="quantity" min="1" max="10" value="1" inputmode="numeric" />
+                </label>
+                <button class="btn btn--primary-light btn--cart-wide" type="submit">Sepete ekle</button>
+            </div>
+        </form>
 
         <p class="buybox__shipping">
             <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>

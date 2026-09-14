@@ -1,0 +1,13 @@
+@model AddFailedViewModel
+@{
+    ViewData["Title"] = "Sepete eklenemedi";
+    ViewData["Description"] = "Parça sepete eklenemedi; beden seçimini ya da stok durumunu kontrol edin.";
+}
+
+<section class="cart-page" aria-labelledby="failed-title">
+    <div class="empty-card">
+        <h1 id="failed-title" class="empty-card__title">Sepete eklenemedi</h1>
+        <p class="empty-card__text" role="alert">@Model.Message</p>
+        <a class="btn btn--primary-dark" href="@Model.ReturnUrl">Parçaya dön</a>
+    </div>
+</section>

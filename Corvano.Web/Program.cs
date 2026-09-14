@@ -6,6 +6,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Corvano.Business.Abstract;
 using Corvano.Business.DependencyResolvers.Autofac;
+using Corvano.Business.Utilities;
 using Corvano.DataAccess.Concrete.EntityFramework.Contexts;
 using Corvano.Web.ModelBinding;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,13 +20,17 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container => container.Registe
 builder.Services.AddControllersWithViews(options =>
     options.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider()));
 
-// Türkçe harfler HTML kaynağında entity'ye çevrilmesin.
+// Türkçe harfler, ₺ ve tire/nokta gibi işaretler HTML kaynağında entity'ye çevrilmesin.
 builder.Services.AddSingleton(HtmlEncoder.Create(
     UnicodeRanges.BasicLatin,
     UnicodeRanges.Latin1Supplement,
-    UnicodeRanges.LatinExtendedA));
+    UnicodeRanges.LatinExtendedA,
+    UnicodeRanges.GeneralPunctuation,
+    UnicodeRanges.CurrencySymbols));
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
+builder.Services.AddSingleton(builder.Configuration.GetSection("Cart").Get<CartOptions>() ?? new CartOptions());
 
 builder.Services.AddDbContext<CorvanoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
